@@ -27,7 +27,7 @@ EMat.pdf
 La clase usa `inputenc` y `fontenc`, por lo que requiere **pdflatex**:
 
 ```bash
-pdflatex -synctex=1 -interaction=nonstopmode documento.tex
+pdflatex documento.tex
 ```
 
 ---
@@ -46,17 +46,100 @@ pdflatex -synctex=1 -interaction=nonstopmode documento.tex
 \imprimirtitulo
 
 \begin{ejercicio}
-  Enunciado del ejercicio sin valor de puntos.
+  Ejercicio sin valor de puntos.
 \end{ejercicio}
 
 \begin{ejercicio}[10]
-  Enunciado del ejercicio con valor: muestra "(10 pts.)".
+  Ejercicio con valor: imprime "Ejercicio 2. (10 pts.)".
 
   \begin{subejercicios}
-    \item Primer inciso.
-    \item Segundo inciso.
+    \item Inciso sin puntos.
+    \item Inciso sin puntos.
   \end{subejercicios}
 \end{ejercicio}
+
+\end{document}
+```
+
+### Puntos en ejercicios y subejercicios
+
+**Puntos por ejercicio** — pasar el valor como argumento opcional:
+
+```latex
+\begin{ejercicio}[25]
+  Enunciado...
+\end{ejercicio}
+```
+
+Imprime: `Ejercicio 1.  (25 pts.)`
+
+**Puntos por inciso** — usar `\pts{N}` al inicio de cada `\item`:
+
+```latex
+\begin{ejercicio}[25]
+  Resuelva cada inciso.
+
+  \begin{subejercicios}
+    \item \pts{10} Primer inciso, vale 10 puntos.
+    \item \pts{15} Segundo inciso, vale 15 puntos.
+  \end{subejercicios}
+\end{ejercicio}
+```
+
+`\pts{N}` imprime `(N pts.)` alineado a la derecha de la línea. El valor del
+ejercicio (`[25]`) y los valores de los incisos (`\pts{}`) son independientes:
+el primero aparece junto al número del ejercicio, los segundos al final de cada
+inciso.
+
+**Total automático de puntos** — `\totalpuntos` suma todos los valores
+declarados en `\begin{ejercicio}[N]` y puede usarse en cualquier parte del
+documento:
+
+```latex
+% En el preámbulo, se puede poner el total calculado en \valor{}:
+\valor{\totalpuntos\ puntos}   % ← se evalúa al final; ver nota abajo
+
+% O imprimirlo al final del documento:
+Esta evaluación vale \totalpuntos\ puntos en total.
+```
+
+> **Nota:** `\totalpuntos` se calcula durante la compilación, por lo que
+> si se usa en el preámbulo (dentro de `\valor{}`) el valor puede no estar
+> disponible en el primer paso. Compilar **dos veces** resuelve esto.
+> Para evitarlo, simplemente escribir el total manualmente en `\valor{}`.
+
+Ejemplo completo con puntos automáticos:
+
+```latex
+\documentclass{emate-ucr}
+
+\curso{I Ciclo 2026\\MA-1022\\Cálculo para Ciencias Económicas II}
+\encabezado{Prueba Corta 1}
+\fecha{20 de marzo de 2026}
+\duracion{50 minutos}
+
+\begin{document}
+\imprimirtitulo
+\datosestudiante
+
+\begin{instrucciones}
+  \item Justifique cada respuesta.
+\end{instrucciones}
+
+\begin{ejercicio}[10]
+  Resuelva el sistema...
+\end{ejercicio}
+
+\begin{ejercicio}[15]
+  Determine el rango...
+
+  \begin{subejercicios}
+    \item \pts{8}  Primer inciso.
+    \item \pts{7}  Segundo inciso.
+  \end{subejercicios}
+\end{ejercicio}
+
+Esta prueba vale \totalpuntos\ puntos en total.
 
 \end{document}
 ```
@@ -143,6 +226,8 @@ igual que una hoja de ejercicios.
 | `\begin{indicaciones}` | Indicaciones sin caja, texto libre |
 | `\begin{ejercicio}[N]` | Ejercicio numerado automáticamente; N = puntos (opcional) |
 | `\begin{subejercicios}` | Incisos a), b), c), ... |
+| `\pts{N}` | Imprime `(N pts.)` alineado a la derecha; usar dentro de `\item` |
+| `\totalpuntos` | Total acumulado de puntos de todos los `\begin{ejercicio}[N]` |
 | `\begin{solucion}` | Solución (visible solo con opción `[soluciones]`) |
 
 ### Opción de clase

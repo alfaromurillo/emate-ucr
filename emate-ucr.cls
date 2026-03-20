@@ -117,7 +117,15 @@
 }
 
 %% ── Puntos por ítem ──────────────────────────────────────────────────────────
+% \pts{N}: imprime "(N pts.)" alineado a la derecha. Útil para asignar puntos
+% a incisos individuales dentro de subejercicios, p.ej.: \item \pts{3} Enunciado
 \newcommand{\pts}[1]{\hfill\normalfont(#1 pts.)}
+
+%% ── Conteo automático de puntos ──────────────────────────────────────────────
+% Acumula los puntos declarados en \begin{ejercicio}[N].
+% \totalpuntos imprime el total acumulado hasta ese punto del documento.
+\newcounter{totalpts}
+\newcommand{\totalpuntos}{\arabic{totalpts}}
 
 %% ── Abecedario sin ñ ─────────────────────────────────────────────────────────
 % babel/español redefine \@alph para incluir ñ; lo sobreescribimos en su propio hook
@@ -136,7 +144,7 @@
 \newenvironment{ejercicio}[1][]{%
   \refstepcounter{ejercicio}%
   \par\vspace{4mm}\noindent\textbf{Ejercicio \arabic{ejercicio}.}%
-  \ifx&#1&\else{ \normalfont(#1 pts.)}\fi\quad
+  \ifx&#1&\else{ \normalfont(#1 pts.)}\addtocounter{totalpts}{#1}\fi\quad
 }{%
   \par\medskip
 }
