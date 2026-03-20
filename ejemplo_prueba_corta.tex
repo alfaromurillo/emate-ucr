@@ -1,0 +1,112 @@
+%% ─────────────────────────────────────────────────────────────────────────────
+%% CLASE emate-ucr  —  prueba corta
+%% ─────────────────────────────────────────────────────────────────────────────
+%%
+%% Este archivo muestra los comandos adicionales disponibles para
+%% evaluaciones formales (pruebas cortas, exámenes).
+%% Todos son opcionales: si no se usan, el documento queda igual
+%% que una hoja de ejercicios sencilla.
+%%
+\documentclass{emate-ucr}
+% \documentclass[soluciones]{emate-ucr}   % <-- versión con soluciones
+
+%% ── Metadatos obligatorios ───────────────────────────────────────────────────
+\curso{I Ciclo 2026\\MA-1022\\Cálculo para Ciencias Económicas II}
+\encabezado{Prueba Corta 1}
+
+%% ── Metadatos opcionales de evaluación ───────────────────────────────────────
+%%
+%% Los tres comandos siguientes son opcionales e independientes entre sí.
+%% Si se definen, \imprimirtitulo los muestra en una línea adicional
+%% centrada bajo el título, separada por una regla:
+%%
+%%   Fecha: 20 de marzo de 2026  |  Duración: 50 minutos  |  Valor: 15 puntos
+%%
+%% Si ninguno está definido, esa línea no aparece (retrocompatible con
+%% hojas de ejercicios que no los usan).
+%%
+\fecha{20 de marzo de 2026}       % fecha de aplicación
+\duracion{50 minutos}             % tiempo disponible
+\valor{15 puntos}                 % valor total de la evaluación
+
+\begin{document}
+
+%% \imprimirtitulo
+%%   Imprime el título y, si corresponde, la línea de metadatos.
+%%   Llamar siempre al inicio del documento.
+%%
+\imprimirtitulo
+
+%% \datosestudiante
+%%   Imprime una línea con espacios para que el estudiante escriba
+%%   su nombre y número de carné:
+%%
+%%     Nombre: _______________________________  Carné: __________
+%%
+%%   Es opcional: omitirlo en hojas de ejercicios que no requieren
+%%   identificación individual.
+%%
+\datosestudiante
+
+%% ── Entorno instrucciones ─────────────────────────────────────────────────────
+%%
+%% Imprime una caja enmarcada con las indicaciones de la evaluación.
+%% Cada indicación va con \item (lista numerada automáticamente).
+%% Usar en lugar del entorno indicaciones cuando se quiere un formato
+%% más formal con borde visible.
+%%
+%% (También existe \begin{indicaciones}...\end{indicaciones} para un
+%%  formato más simple, sin caja: solo la palabra "Indicaciones:" en
+%%  negrita seguida del texto libre, sin lista numerada.)
+%%
+\begin{instrucciones}
+  \item Esta prueba es individual y con libro cerrado.
+  \item Justifique cada respuesta. Una respuesta sin justificación no se
+        calificará.
+  \item Puede usar calculadora científica (no graficadora).
+\end{instrucciones}
+
+\begin{ejercicio}[10]
+  Resuelva el siguiente sistema de ecuaciones aplicando eliminación de
+  Gauss-Jordan. Dé el conjunto solución.
+  \[
+    \begin{cases}
+       x + 2y +  z =  5 \\
+      2x + 5y + 2z = 11 \\
+           y +  z =  3
+    \end{cases}
+  \]
+
+  \begin{solucion}
+    La matriz aumentada es
+    \[
+      \left(\begin{array}{ccc|r} 1 & 2 & 1 & 5 \\ 2 & 5 & 2 & 11 \\ 0 & 1 & 1 & 3
+      \end{array}\right)
+      \xrightarrow{f_2\to f_2-2f_1}
+      \left(\begin{array}{ccc|r} 1 & 2 & 1 & 5 \\ 0 & 1 & 0 & 1 \\ 0 & 1 & 1 & 3
+      \end{array}\right)
+      \xrightarrow{f_3\to f_3-f_2}
+      \left(\begin{array}{ccc|r} 1 & 2 & 1 & 5 \\ 0 & 1 & 0 & 1 \\ 0 & 0 & 1 & 2
+      \end{array}\right).
+    \]
+    De la fila~3: $z=2$. De la fila~2: $y=1$. De la fila~1: $x=1$.
+    El conjunto solución es $S=\{(1,\,1,\,2)\}$.
+  \end{solucion}
+\end{ejercicio}
+
+\begin{ejercicio}[5]
+  Determine el rango de la matriz
+  $\begin{pmatrix} 1 & 2 & 3 \\ 2 & 5 & 7 \\ 1 & 3 & 4 \end{pmatrix}$.
+
+  \begin{solucion}
+    Reduciendo a forma escalonada se obtienen 2 filas no nulas.
+    El rango es $\mathbf{2}$.
+  \end{solucion}
+\end{ejercicio}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: LaTeX
+%%% TeX-master: t
+%%% End:

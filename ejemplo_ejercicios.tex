@@ -1,0 +1,113 @@
+%% ─────────────────────────────────────────────────────────────────────────────
+%% CLASE emate-ucr  —  hoja de ejercicios semanales
+%% ─────────────────────────────────────────────────────────────────────────────
+%%
+%% Opción de clase disponible:
+%%   [soluciones]  Muestra las soluciones dentro de cajas grises.
+%%                 Sin esta opción (versión para estudiantes) las soluciones
+%%                 no aparecen en el PDF, aunque estén escritas en el fuente.
+%%
+%% Para generar ambas versiones se recomienda crear un archivo separado
+%% (ver ejemplo_ejercicios_soluciones.tex):
+%%
+%%   \PassOptionsToClass{soluciones}{emate-ucr}
+%%   \input{ejemplo_ejercicios}
+%%
+\documentclass{emate-ucr}
+% \documentclass[soluciones]{emate-ucr}   % <-- versión con soluciones
+
+%% ── Metadatos obligatorios ───────────────────────────────────────────────────
+%%
+%% \curso{texto}
+%%   Aparece en el encabezado de página (centro), en versalitas.
+%%   Puede usar \\ para saltos de línea.
+%%
+\curso{I Ciclo 2026\\MA-1022\\Cálculo para Ciencias Económicas II}
+
+%% \encabezado{texto}
+%%   Título del documento, impreso en negrita al inicio con \imprimirtitulo.
+%%
+\encabezado{Ejercicios Semana N}
+
+\begin{document}
+
+%% \imprimirtitulo
+%%   Imprime el título (\encabezado) centrado en negrita.
+%%   Si se definieron \fecha, \duracion o \valor (ver ejemplo_prueba_corta.tex),
+%%   también muestra esa línea de metadatos bajo el título.
+%%   Llamar siempre al inicio del documento, antes del primer ejercicio.
+%%
+\imprimirtitulo
+
+%% ── Entorno ejercicio ────────────────────────────────────────────────────────
+%%
+%% \begin{ejercicio}          Ejercicio sin valor de puntos.
+%% \begin{ejercicio}[10]     Ejercicio con valor indicado: muestra "(10 pts.)".
+%%
+%% Los ejercicios se numeran automáticamente (1, 2, 3, ...).
+%%
+\begin{ejercicio}
+  Resuelva cada sistema de ecuaciones lineales aplicando reducción gaussiana.
+  Dé el conjunto solución.
+
+  %% ── Entorno subejercicios ──────────────────────────────────────────────────
+  %%
+  %% Lista de incisos etiquetados a), b), c), ...
+  %% Cada inciso va con \item.
+  %%
+  \begin{subejercicios}
+    \item
+    \[
+      \begin{cases}
+         x + 2y =  5 \\
+        3x + 5y = 12
+      \end{cases}
+    \]
+
+    %% ── Entorno solucion ────────────────────────────────────────────────────
+    %%
+    %% El contenido solo aparece si se cargó la opción [soluciones].
+    %% Sin esa opción el bloque no genera ningún output.
+    %%
+    \begin{solucion}
+      La matriz aumentada es
+      \[
+        \left(\begin{array}{cc|r} 1 & 2 & 5 \\ 3 & 5 & 12 \end{array}\right)
+        \xrightarrow{f_2\to f_2-3f_1}
+        \left(\begin{array}{cc|r} 1 & 2 & 5 \\ 0 & -1 & -3 \end{array}\right).
+      \]
+      De la fila~2: $y = 3$. De la fila~1: $x = -1$.
+      El conjunto solución es $S = \{(-1,\,3)\}$.
+    \end{solucion}
+
+    \item
+    \[
+      \begin{cases}
+         x + y = 3 \\
+        2x + 2y = 8
+      \end{cases}
+    \]
+
+    \begin{solucion}
+      La fila~2 da $0 = 2$, contradicción. El conjunto solución es $S = \emptyset$.
+    \end{solucion}
+
+  \end{subejercicios}
+\end{ejercicio}
+
+\begin{ejercicio}[10]
+  Determine el rango de la matriz
+  $\begin{pmatrix} 1 & 2 & 3 \\ 2 & 5 & 7 \\ 1 & 3 & 4 \end{pmatrix}$.
+
+  \begin{solucion}
+    Reduciendo a forma escalonada se obtienen 2 filas no nulas.
+    El rango es $\mathbf{2}$.
+  \end{solucion}
+\end{ejercicio}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: LaTeX
+%%% TeX-master: t
+%%% End:
