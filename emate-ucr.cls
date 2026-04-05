@@ -17,7 +17,7 @@
 %% ── Paquetes ─────────────────────────────────────────────────────────────────
 \RequirePackage[utf8]{inputenc}
 \RequirePackage[T1]{fontenc}
-\RequirePackage[left=3cm,right=3cm,top=1cm,bottom=3cm]{geometry}
+\RequirePackage[left=3cm,right=3cm,top=1cm,bottom=3cm,includeheadfoot]{geometry}
 \RequirePackage[spanish]{babel}
 \RequirePackage{fancyhdr}
 \RequirePackage{mathtools}   % carga amsmath + extensiones
