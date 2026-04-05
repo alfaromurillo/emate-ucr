@@ -6,10 +6,10 @@
 %% Ver también ejemplo_ejercicios.tex y ejemplo_prueba_corta.tex.
 %%
 %% COMPILACIÓN
-%%   Requiere pdflatex (no xelatex ni lualatex):
-%%     pdflatex -synctex=1 -interaction=nonstopmode ejemplo_examen.tex
+%%   Requiere pdflatex:
+%%     pdflatex  ejemplo_examen.tex
 %%
-%%   Para generar la versión con soluciones, crear un archivo aparte:
+%%   Para generar una versión con soluciones, crear un archivo aparte con:
 %%     \PassOptionsToClass{soluciones}{emate-ucr}
 %%     \input{ejemplo_examen}
 %%
@@ -18,21 +18,25 @@
 
 %% ── Metadatos obligatorios ───────────────────────────────────────────────────
 %%
-%% \curso{texto}    Centro del encabezado de página. \\ para saltos de línea.
+%% \curso{texto}    Centro del encabezado de página. Usar \\ para saltos de línea.
 %% \encabezado{texto}  Título en negrita al inicio del documento.
 %%
-\curso{I Ciclo 2026\\MA-1022\\Cálculo para Ciencias Económicas II}
-\encabezado{Primer Examen Parcial}
+\curso{I Ciclo 2026\\MA-1022\\Cálculo para Ciencias Económicas II} % encabezado de página
+\encabezado{Primer Examen Parcial}               % título del documento
 
 %% ── Metadatos opcionales ─────────────────────────────────────────────────────
 %%
-%% Cualquier subconjunto de estos tres puede usarse o no.
-%% Los que estén definidos aparecen en una línea bajo el título:
+%% Cualquier subconjunto de estos cuatro puede usarse o no.
+%% Los primeros tres aparecen en una línea bajo el título:
 %%   Fecha: ...  |  Duración: ...  |  Valor: ...
 %%
-\fecha{15 de abril de 2026}
-\duracion{2 horas}
-\valor{100 puntos}
+\fecha{15 de abril de 2026}  % fecha de aplicación
+\duracion{2 horas}           % tiempo disponible
+\valor{\totalpuntos\ puntos} % valor total (compilar dos veces para
+                             % actualizar el \totalpuntos)
+
+\nombreejercicio{Problema}   % palabra usada en lugar de "Ejercicio"
+                             % al principio de cada ejercicio
 
 \begin{document}
 
@@ -45,7 +49,8 @@
 
 %% \datosestudiante
 %%   Línea para nombre y carné del estudiante. Omitir en hojas de
-%%   ejercicios que no requieren identificación individual.
+%%   ejercicios que no requieren identificación individual, o si no se
+%%   va a pedir esta hoja de vuelta al estudiante
 %%
 \datosestudiante
 
@@ -64,8 +69,6 @@
   \item Justifique cada respuesta. Una respuesta sin desarrollo no se
         calificará aunque sea correcta.
   \item Está prohibido el uso de calculadora.
-  \item Si necesita más espacio, use el reverso de la hoja e indíquelo
-        claramente.
   \item La deshonestidad académica se reportará según el Reglamento
         Estudiantil de la Universidad de Costa Rica.
 \end{instrucciones}
@@ -151,8 +154,3 @@
 \end{ejercicio}
 
 \end{document}
-
-%%% Local Variables:
-%%% mode: LaTeX
-%%% TeX-master: t
-%%% End:

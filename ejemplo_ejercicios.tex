@@ -2,10 +2,13 @@
 %% CLASE emate-ucr  —  hoja de ejercicios semanales
 %% ─────────────────────────────────────────────────────────────────────────────
 %%
-%% Opción de clase disponible:
-%%   [soluciones]  Muestra las soluciones dentro de cajas grises.
-%%                 Sin esta opción (versión para estudiantes) las soluciones
-%%                 no aparecen en el PDF, aunque estén escritas en el fuente.
+%% Opciones de clase disponibles:
+%%   [soluciones]    Muestra las soluciones dentro de cajas grises.
+%%                   Sin esta opción (versión para estudiantes) las soluciones
+%%                   no aparecen en el PDF, aunque estén escritas en el fuente.
+%%   [numpaginas]    Siempre muestra el número de página en el pie.
+%%   [nonumpaginas]  Nunca muestra el número de página.
+%%   (ninguna)       Muestra el número de página solo si hay 2 o más páginas.
 %%
 %% Para generar ambas versiones se recomienda crear un archivo separado
 %% (ver ejemplo_ejercicios_soluciones.tex):
@@ -17,17 +20,8 @@
 % \documentclass[soluciones]{emate-ucr}   % <-- versión con soluciones
 
 %% ── Metadatos obligatorios ───────────────────────────────────────────────────
-%%
-%% \curso{texto}
-%%   Aparece en el encabezado de página (centro), en versalitas.
-%%   Puede usar \\ para saltos de línea.
-%%
-\curso{I Ciclo 2026\\MA-1022\\Cálculo para Ciencias Económicas II}
-
-%% \encabezado{texto}
-%%   Título del documento, impreso en negrita al inicio con \imprimirtitulo.
-%%
-\encabezado{Ejercicios Semana N}
+\curso{I Ciclo 2026\\MA-1022\\Cálculo para Ciencias Económicas II} % encabezado de página
+\encabezado{Ejercicios Semana N}                 % título del documento
 
 \begin{document}
 
@@ -45,6 +39,8 @@
 %% \begin{ejercicio}[10]     Ejercicio con valor indicado: muestra "(10 pts.)".
 %%
 %% Los ejercicios se numeran automáticamente (1, 2, 3, ...).
+%% La palabra "Ejercicio" puede cambiarse con \nombreejercicio{Problema}
+%% en el preámbulo (ver ejemplo_prueba_corta.tex y ejemplo_examen.tex).
 %%
 \begin{ejercicio}
   Resuelva cada sistema de ecuaciones lineales aplicando reducción gaussiana.
@@ -106,8 +102,3 @@
 \end{ejercicio}
 
 \end{document}
-
-%%% Local Variables:
-%%% mode: LaTeX
-%%% TeX-master: t
-%%% End:
