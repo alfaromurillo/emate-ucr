@@ -160,10 +160,13 @@
 \newenvironment{subejercicios}{\begin{enumerate}[label=\alph*)]}{\end{enumerate}}
 
 %% ── Entorno ejercicio ────────────────────────────────────────────────────────
+\newcommand{\nombreejercicio}[1]{\def\@nombreejercicio{#1}}
+\def\@nombreejercicio{Ejercicio}  % predeterminado
+
 \newcounter{ejercicio}
 \newenvironment{ejercicio}[1][]{%
   \refstepcounter{ejercicio}%
-  \par\vspace{4mm}\noindent\textbf{Ejercicio \arabic{ejercicio}.}%
+  \par\vspace{4mm}\noindent\textbf{\@nombreejercicio\ \arabic{ejercicio}.}%
   \ifx&#1&\else{ \normalfont(#1 pts.)}\addtocounter{totalpts}{#1}\fi\quad
 }{%
   \par\medskip

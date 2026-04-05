@@ -215,6 +215,9 @@ igual que una hoja de ejercicios.
 | `\fecha{texto}` | No | Fecha de la evaluación |
 | `\duracion{texto}` | No | Tiempo disponible |
 | `\valor{texto}` | No | Puntaje total |
+| `\nombreejercicio{texto}` | No | Palabra usada en el entorno `ejercicio` (predeterminado: `Ejercicio`) |
+
+Por ejemplo, `\nombreejercicio{Problema}` produce `Problema 1.`, `Problema 2.`, etc.
 
 ### En el documento
 
