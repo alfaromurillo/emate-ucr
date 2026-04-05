@@ -230,11 +230,21 @@ igual que una hoja de ejercicios.
 | `\totalpuntos` | Total acumulado de puntos de todos los `\begin{ejercicio}[N]` |
 | `\begin{solucion}` | Solución (visible solo con opción `[soluciones]`) |
 
-### Opción de clase
+### Opciones de clase
 
 | Opción | Descripción |
 |---|---|
 | `[soluciones]` | Muestra el contenido de los entornos `solucion` |
+| `[numpaginas]` | Siempre imprime el número de página en el pie |
+| `[nonumpaginas]` | Nunca imprime el número de página |
+| (ninguna) | Imprime el número de página solo si el documento tiene 2 o más páginas (predeterminado) |
+
+```latex
+\documentclass[numpaginas]{emate-ucr}            % siempre
+\documentclass[nonumpaginas]{emate-ucr}          % nunca
+\documentclass{emate-ucr}                        % predeterminado: ≥ 2 páginas
+\documentclass[soluciones,numpaginas]{emate-ucr} % varias opciones
+```
 
 ---
 

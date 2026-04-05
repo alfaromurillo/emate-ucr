@@ -9,6 +9,16 @@
 % Opción: mostrar soluciones
 \newif\if@soluciones\@solucionesfalse
 \DeclareOption{soluciones}{\@solucionestrue}
+
+% Opción: numpaginas — cuándo mostrar el número de página
+%   numpaginas   : siempre
+%   nonumpaginas : nunca
+%   (ninguna)    : solo si el documento tiene 2 o más páginas (predeterminado)
+\newif\if@numpaginasalways\@numpaginasalwaysfalse
+\newif\if@numpaginasnever\@numpaginasneverfalse
+\DeclareOption{numpaginas}{\@numpaginasalwaystrue}
+\DeclareOption{nonumpaginas}{\@numpaginasnevertrue}
+
 \DeclareOption*{\PassOptionsToClass{\CurrentOption}{article}}
 \ProcessOptions\relax
 
@@ -28,6 +38,8 @@
 \RequirePackage{xcolor}
 \RequirePackage{enumitem}
 \RequirePackage{hyperref}
+\RequirePackage{lastpage}
+\RequirePackage{refcount}
 
 %% ── Metadatos obligatorios (deben definirse en el .tex) ──────────────────────
 \newcommand{\curso}[1]{\def\@curso{#1}}
@@ -48,7 +60,15 @@
 \lhead{\includegraphics[width=4cm]{UCR}\vspace{3mm}}
 \chead{\textsc{\@curso}\vspace{3mm}}
 \rhead{\includegraphics[width=4.1cm]{EMat}\vspace{7mm}}
-\cfoot{\thepage}
+\cfoot{%
+  \if@numpaginasnever\else
+    \if@numpaginasalways
+      \thepage
+    \else
+      \ifnum\getpagerefnumber{LastPage}>1\relax\thepage\fi
+    \fi
+  \fi
+}
 
 %% ── Título del documento ─────────────────────────────────────────────────────
 \newcommand{\imprimirtitulo}{%
