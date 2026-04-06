@@ -143,9 +143,16 @@
 
 %% ── Conteo automático de puntos ──────────────────────────────────────────────
 % Acumula los puntos declarados en \begin{ejercicio}[N].
-% \totalpuntos imprime el total acumulado hasta ese punto del documento.
+% \totalpuntos imprime el total final (requiere compilar dos veces:
+% la primera compilación guarda el total en el .aux; la segunda lo lee).
 \newcounter{totalpts}
-\newcommand{\totalpuntos}{\arabic{totalpts}}
+\newcommand{\@totalpuntosfinal}{??}
+\AtEndDocument{%
+  \immediate\write\@auxout{%
+    \string\gdef\string\@totalpuntosfinal{\arabic{totalpts}}%
+  }%
+}
+\newcommand{\totalpuntos}{\@totalpuntosfinal}
 
 %% ── Abecedario sin ñ ─────────────────────────────────────────────────────────
 % babel/español redefine \@alph para incluir ñ; lo sobreescribimos en su propio hook
