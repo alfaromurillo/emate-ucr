@@ -80,8 +80,8 @@ Imprime: `Ejercicio 1.  (25 pts.)`
   Resuelva cada inciso.
 
   \begin{subejercicios}
-    \item \pts{10} Primer inciso, vale 10 puntos.
-    \item \pts{15} Segundo inciso, vale 15 puntos.
+    \item Primer inciso, vale 10 puntos.\pts{10}
+    \item Segundo inciso, vale 15 puntos.\pts{15}
   \end{subejercicios}
 \end{ejercicio}
 ```
