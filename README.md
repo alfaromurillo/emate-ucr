@@ -251,6 +251,36 @@ Por ejemplo, `\nombreejercicio{Problema}` produce `Problema 1.`, `Problema 2.`, 
 
 ---
 
+## Notas de compatibilidad
+
+### TikZ dentro del entorno `solucion`
+
+El entorno `solucion` usa el paquete `environ` (`\NewEnviron`), que tokeniza el
+cuerpo del entorno en el momento de `\begin{solucion}`. Con `babel` en español,
+el carácter `>` está activo como shorthand para `»`, lo que rompe la sintaxis de
+TikZ (`->`, `>=latex`, etc.) antes de que `\usetikzlibrary{babel}` pueda
+desactivarlo.
+
+**Solución:** envolver el entorno `solucion` con `\shorthandoff{>}` y
+`\shorthandon{>}`:
+
+```latex
+\shorthandoff{>}
+\begin{solucion}
+  \begin{tikzpicture}
+    \draw[->] (0,0) -- (1,0);
+  \end{tikzpicture}
+\end{solucion}
+\shorthandon{>}
+```
+
+Esto es necesario siempre que se use TikZ (u otro paquete que use `>`) dentro
+de `\begin{solucion}...\end{solucion}`. Fuera del entorno `solucion`, el
+problema no ocurre porque `\usetikzlibrary{babel}` maneja la desactivación
+automáticamente.
+
+---
+
 ## Ejemplos
 
 El directorio incluye tres ejemplos compilables con sus versiones de soluciones:
