@@ -232,12 +232,16 @@ Por ejemplo, `\nombreejercicio{Problema}` produce `Problema 1.`, `Problema 2.`, 
 | `\pts{N}` | Imprime `(N pts.)` alineado a la derecha; usar dentro de `\item` |
 | `\totalpuntos` | Total acumulado de puntos de todos los `\begin{ejercicio}[N]` |
 | `\begin{solucion}` | Solución (visible solo con opción `[soluciones]`) |
+| `\guia[N]{texto}` | Marca un fragmento de solución con N puntos (ver sección Guía de calificación) |
+| `\ptsguiaej` | Suma de `\guia[N]` (N > 0) en el ejercicio actual; usar como argumento de `ejercicio` |
+| `\ptsguiasubej` | Suma de `\guia[N]` (N > 0) en el ítem actual de `subejercicios` |
 
 ### Opciones de clase
 
 | Opción | Descripción |
 |---|---|
 | `[soluciones]` | Muestra el contenido de los entornos `solucion` |
+| `[guia]` | Versión de guía de calificación: implica `soluciones` y activa las decoraciones de `\guia` |
 | `[numpaginas]` | Siempre imprime el número de página en el pie |
 | `[nonumpaginas]` | Nunca imprime el número de página |
 | (ninguna) | Imprime el número de página solo si el documento tiene 2 o más páginas (predeterminado) |
@@ -247,6 +251,114 @@ Por ejemplo, `\nombreejercicio{Problema}` produce `Problema 1.`, `Problema 2.`, 
 \documentclass[nonumpaginas]{emate-ucr}          % nunca
 \documentclass{emate-ucr}                        % predeterminado: ≥ 2 páginas
 \documentclass[soluciones,numpaginas]{emate-ucr} % varias opciones
+\documentclass[guia]{emate-ucr}                  % guía de calificación
+```
+
+---
+
+## Guía de calificación
+
+La opción `[guia]` genera una versión del documento para uso del profesor, con
+anotaciones visuales que indican cuántos puntos vale cada fragmento de la solución.
+
+### Flujo de trabajo
+
+Cree un archivo separado (p.ej. `examen_guia.tex`):
+
+```latex
+\PassOptionsToClass{guia}{emate-ucr}
+\input{examen}
+```
+
+O directamente: `\documentclass[guia]{emate-ucr}`.
+
+### Comando `\guia`
+
+```latex
+\guia[N]{texto}
+```
+
+Dentro de un entorno `solucion`, marca `texto` con N puntos:
+
+| N | Resultado (con opción `guia`) |
+|---|---|
+| N > 0 | Texto subrayado en azul; `+N` en el margen derecho |
+| N < 0 | Texto tachado en rojo semi-transparente; `N` en el margen derecho |
+| N = 0 o sin argumento | Texto sin decoración |
+| Sin opción `guia` | Texto sin decoración (el contenido sigue visible en `soluciones`) |
+
+En modo matemático (`$...$`, `\[...\]`, `align*`, etc.) el subrayado usa
+`\underline` de LaTeX en lugar de `\uline`. Las anotaciones en el margen
+dentro de entornos display aparecen al terminar el bloque.
+
+Ejemplo de uso:
+
+```latex
+\begin{solucion}
+  Aplicando \guia[1]{la regla de Cramer, $x_2 = \det(A_2)/\det(A)$}, donde
+  $A_2$ es la matriz $A$ con la columna 2 reemplazada por $\mathbf{b}$:
+  \[
+    A_2 = \begin{pmatrix} 1 & 2 & 0 \\ 0 & k & 1 \\ 2 & 1 & 1 \end{pmatrix}.
+  \]
+  Por lo tanto,
+  \[
+    x_2 = \frac{\det(A_2)}{\det(A)} = \guia[1]{\frac{k+3}{5}}.
+  \]
+\end{solucion}
+```
+
+### Puntos automáticos con `\ptsguiaej` y `\ptsguiasubej`
+
+`\ptsguiaej` calcula automáticamente la suma de todos los `\guia[N]` (con N > 0)
+del ejercicio actual. Se puede usar como argumento de `\begin{ejercicio}` para
+que el valor en el encabezado del ejercicio coincida con las anotaciones:
+
+```latex
+\begin{ejercicio}[\ptsguiaej]
+  ...
+  \begin{solucion}
+    \guia[3]{Paso 1...}
+    \guia[2]{Paso 2...}
+    % El ejercicio valdrá 5 pts. automáticamente.
+  \end{solucion}
+\end{ejercicio}
+```
+
+`\ptsguiasubej` hace lo mismo para cada ítem dentro de `subejercicios`:
+
+```latex
+\begin{subejercicios}
+  \item \pts{\ptsguiasubej} Enunciado a.
+  \begin{solucion}
+    \guia[4]{Resultado correcto.}
+  \end{solucion}
+
+  \item \pts{\ptsguiasubej} Enunciado b.
+  \begin{solucion}
+    \guia[6]{Resultado correcto.}
+  \end{solucion}
+\end{subejercicios}
+```
+
+Ambos comandos leen el total desde el `.aux` de la compilación anterior.
+**Requieren compilar dos veces** (o tres si también se usa `\totalpuntos` con
+`\ptsguiaej`).
+
+### Personalización visual
+
+Los colores y la transparencia se pueden cambiar en el preámbulo:
+
+```latex
+\renewcommand{\guiacolorpositivo}{blue}   % predeterminado
+\renewcommand{\guiacolornegativo}{red}    % predeterminado
+\renewcommand{\guiatransparencia}{0.3}    % 0 = invisible, 1 = opaco (predeterminado: 0.3)
+```
+
+Por defecto la solución en modo guía se muestra en una caja gris igual a la de
+`soluciones`. Para desactivar la caja y mostrar el contenido sin recuadro:
+
+```latex
+\guiasincaja   % poner en el preámbulo
 ```
 
 ---
@@ -290,3 +402,5 @@ El directorio incluye tres ejemplos compilables con sus versiones de soluciones:
 | `ejemplo_ejercicios.tex` | Hoja de ejercicios sencilla |
 | `ejemplo_prueba_corta.tex` | Prueba corta con metadatos e instrucciones |
 | `ejemplo_examen.tex` | Examen con todos los comandos disponibles |
+| `ejemplo_examen_soluciones.tex` | Versión con soluciones del examen |
+| `ejemplo_examen_guia.tex` | Versión de guía de calificación del examen |

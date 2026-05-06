@@ -79,7 +79,7 @@
 %% Numeración automática. Puede combinarse con \begin{subejercicios}
 %% para incisos a), b), c), ...
 %%
-\begin{ejercicio}[25]
+\begin{ejercicio}[\ptsguiaej]
   Resuelva el siguiente sistema de ecuaciones aplicando eliminación de
   Gauss-Jordan. Dé el conjunto solución.
   \[
@@ -94,15 +94,55 @@
   %%   Visible solo con la opción [soluciones]. Sin ella, no genera output.
   %%
   \begin{solucion}
-    La matriz aumentada es
+    \guia[3]{La matriz aumentada del sistema es}
     \[
-      \left(\begin{array}{ccc|r} 1 & 1 & 1 & 6 \\ 2 & 3 & 1 & 11 \\ 1 & 2 & 3 & 14
-      \end{array}\right)
-      \longrightarrow \cdots \longrightarrow
-      \left(\begin{array}{ccc|r} 1 & 0 & 0 & 1 \\ 0 & 1 & 0 & 2 \\ 0 & 0 & 1 & 3
+      \left(\begin{array}{ccc|r}
+        1 & 1 & 1 &  6 \\
+        2 & 3 & 1 & 11 \\
+        1 & 2 & 3 & 14
       \end{array}\right).
     \]
-    El conjunto solución es $S = \{(1,\,2,\,3)\}$.
+    \guia[2]{$R_2 \leftarrow R_2 - 2R_1$:} \guia[2]{$R_3 \leftarrow R_3 - R_1$:}
+    \[
+      \left(\begin{array}{ccc|r}
+        1 & 1 &  1 &  6 \\
+        0 & 1 & -1 & -1 \\
+        0 & 1 &  2 &  8
+      \end{array}\right).
+    \]
+    \guia[2]{$R_3 \leftarrow R_3 - R_2$:}
+    \[
+      \left(\begin{array}{ccc|r}
+        1 & 1 &  1 &  6 \\
+        0 & 1 & -1 & -1 \\
+        0 & 0 &  3 &  9
+      \end{array}\right).
+    \]
+    \guia[2]{$R_3 \leftarrow \tfrac{1}{3}R_3$:}
+    \[
+      \left(\begin{array}{ccc|r}
+        1 & 1 &  1 &  6 \\
+        0 & 1 & -1 & -1 \\
+        0 & 0 &  1 &  3
+      \end{array}\right).
+    \]
+    \guia[2]{$R_2 \leftarrow R_2 + R_3$:} \guia[2]{$R_1 \leftarrow R_1 - R_3$:}
+    \[
+      \left(\begin{array}{ccc|r}
+        1 & 1 & 0 & 3 \\
+        0 & 1 & 0 & 2 \\
+        0 & 0 & 1 & 3
+      \end{array}\right).
+    \]
+    \guia[2]{$R_1 \leftarrow R_1 - R_2$:}
+    \[
+      \left(\begin{array}{ccc|r}
+        1 & 0 & 0 & 1 \\
+        0 & 1 & 0 & 2 \\
+        0 & 0 & 1 & 3
+      \end{array}\right).
+    \]
+    El conjunto solución es \guia[-1]{$S=\{(x=1, y=2, z=3)\}$} \guia[3]{$S = \{(1,\,2,\,3)\}$}.
   \end{solucion}
 \end{ejercicio}
 

@@ -10,6 +10,10 @@
 \newif\if@soluciones\@solucionesfalse
 \DeclareOption{soluciones}{\@solucionestrue}
 
+% Opción: guía de calificación — implica soluciones
+\newif\if@guia\@guiafalse
+\DeclareOption{guia}{\@guiatrue\@solucionestrue}
+
 % Opción: numpaginas — cuándo mostrar el número de página
 %   numpaginas   : siempre
 %   nonumpaginas : nunca
@@ -40,6 +44,8 @@
 \RequirePackage{hyperref}
 \RequirePackage{lastpage}
 \RequirePackage{refcount}
+\RequirePackage[normalem]{ulem}    % \uline y \sout para guía de calificación
+\RequirePackage{transparent}       % opacidad del tachado en guía negativa
 
 %% ── Metadatos obligatorios (deben definirse en el .tex) ──────────────────────
 \newcommand{\curso}[1]{\def\@curso{#1}}
@@ -163,8 +169,49 @@
   }%
 }
 
+%% ── Conteo automático de puntos por ejercicio y subejercicio ─────────────────
+% \puntosejercicio   : suma de \guia[N] (N>0) en el ejercicio actual.
+% \puntossubejercicio: suma de \guia[N] (N>0) en el ítem actual de subejercicios.
+% Ambos requieren compilar dos veces (mismo mecanismo que \totalpuntos).
+% Si además se usa \totalpuntos con \puntosejercicio, compilar tres veces.
+
+\newcounter{@guiaptsej}   % acumulador para el ejercicio actual
+\newcounter{@guiaptssub}  % acumulador para el subejercicio actual
+
+\def\@ptsejstore#1#2{\expandafter\gdef\csname ptsej@#1\endcsname{#2}}
+\def\@ptssubstore#1#2#3{\expandafter\gdef\csname ptssub@#1@#2\endcsname{#3}}
+
+\newcommand{\ptsguiaej}{%
+  \@ifundefined{ptsej@\arabic{ejercicio}}{0}%
+    {\csname ptsej@\arabic{ejercicio}\endcsname}%
+}
+\newcommand{\ptsguiasubej}{%
+  \@ifundefined{ptssub@\arabic{ejercicio}@\arabic{enumi}}{0}%
+    {\csname ptssub@\arabic{ejercicio}@\arabic{enumi}\endcsname}%
+}
+
 %% ── Entorno subejercicios ────────────────────────────────────────────────────
-\newenvironment{subejercicios}{\begin{enumerate}[label=\alph*)]}{\end{enumerate}}
+\newenvironment{subejercicios}{%
+  \setcounter{@guiaptssub}{0}%
+  \begin{enumerate}[label=\alph*)]%
+    % Gancho en \item: guarda el total del ítem anterior y reinicia el acumulador.
+    \let\@guia@origitem\item
+    \def\item{%
+      \ifnum\value{enumi}>0\relax
+        \protected@write\@auxout{}{%
+          \string\@ptssubstore{\arabic{ejercicio}}{\arabic{enumi}}{\arabic{@guiaptssub}}%
+        }%
+        \setcounter{@guiaptssub}{0}%
+      \fi
+      \@guia@origitem
+    }%
+}{%
+  % Guarda el total del último ítem.
+  \protected@write\@auxout{}{%
+    \string\@ptssubstore{\arabic{ejercicio}}{\arabic{enumi}}{\arabic{@guiaptssub}}%
+  }%
+  \end{enumerate}%
+}
 
 %% ── Entorno ejercicio ────────────────────────────────────────────────────────
 \newcommand{\nombreejercicio}[1]{\def\@nombreejercicio{#1}}
@@ -172,11 +219,157 @@
 
 \newcounter{ejercicio}
 \newenvironment{ejercicio}[1][]{%
+  \setcounter{@guiaptsej}{0}%
   \refstepcounter{ejercicio}%
   \par\vspace{4mm}\noindent\textbf{\@nombreejercicio\ \arabic{ejercicio}.}%
   \ifx&#1&\else{ \normalfont(#1 pts.)}\addtocounter{totalpts}{#1}\fi\quad
 }{%
+  \protected@write\@auxout{}{%
+    \string\@ptsejstore{\arabic{ejercicio}}{\arabic{@guiaptsej}}%
+  }%
   \par\medskip
+}
+
+%% ── Guía de calificación ─────────────────────────────────────────────────────
+% \guia[N]{texto}: marca fragmentos de la solución con valor en puntos.
+%   N > 0 : subrayado en color positivo + "+N" en el margen derecho
+%   N < 0 : tachado en color negativo   + "N"  en el margen derecho
+%   N = 0 o sin argumento: muestra el texto sin decoración
+% Sin la opción 'guia': muestra el texto sin decoración.
+%
+% Los colores se pueden cambiar en el preámbulo:
+%   \renewcommand{\guiacolorpositivo}{blue}
+%   \renewcommand{\guiacolornegativo}{red}
+%   \renewcommand{\guiatransparencia}{0.4}   % 0 = invisible, 1 = opaco
+\newcommand{\guiacolorpositivo}{blue}
+\newcommand{\guiacolornegativo}{red}
+\newcommand{\guiatransparencia}{0.3}
+
+% Flag: indica que el próximo \guia debe reiniciar el offset (nueva línea visual).
+% Se activa: al inicio del cuerpo de solucion, y después de cada \[...\].
+% Se desactiva: después del primer \guia que lo consume.
+\newif\if@guianewline\@guianewlinefalse
+
+% Offset horizontal acumulado para anotaciones en la misma línea visual.
+\newlength{\@guiaoffset}
+\global\@guiaoffset=0pt
+
+% Tachado con texto a opacidad plena y línea semi-transparente.
+% Evita \sout (que colorea también el texto) dibujando la regla por separado.
+\newlength{\@guiawd}
+\newcommand{\@guiastrike}[2]{%
+  % #1 = color de la línea, #2 = texto
+  \settowidth{\@guiawd}{{\normalcolor #2}}%
+  \makebox[\@guiawd][l]{%
+    {\normalcolor #2}%
+    \llap{%
+      \transparent{\guiatransparencia}%
+      \textcolor{#1}{\rule[4pt]{\@guiawd}{0.8pt}}%
+    }%
+  }%
+}
+
+% Cola de anotaciones diferidas desde modo matemático.
+% Las celdas de \halign (align*, equation, etc.) atrapan \vadjust; en su lugar
+% las anotaciones se encolan y se emiten en el gancho de \endalign / \].
+\let\@guia@queue\@empty
+
+% Agrega una anotación a la cola, guardando el offset en el momento de la llamada.
+\newcommand{\@guia@enqueue}[3]{%
+  % #1=color  #2=texto  #3=offset ya evaluado (string de dimensión)
+  \expandafter\gdef\expandafter\@guia@queue\expandafter{%
+    \@guia@queue
+    \@guia@vlistnote{#1}{#2}{#3}%
+  }%
+}
+
+% Emite una anotación directamente en la lista vertical (o dentro de \vadjust).
+% El \hbox to 0pt parte del margen izquierdo del área de texto.
+\newcommand{\@guia@vlistnote}[3]{%
+  \vbox to 0pt{%
+    \hbox to 0pt{%
+      \hskip \dimexpr\textwidth+\marginparsep+6pt+#3\relax
+      \normalfont\small\textcolor{#1}{#2}%
+      \hss
+    }%
+    \vss
+  }%
+}
+
+% Vacía la cola: en modo vertical la emite directamente; en horizontal, via \vadjust.
+\newcommand{\@guia@flushqueue}{%
+  \ifx\@guia@queue\@empty\else
+    \ifvmode
+      \@guia@queue
+    \else
+      \vadjust{\@guia@queue}%
+    \fi
+    \global\let\@guia@queue\@empty
+  \fi
+}
+
+% Coloca la anotación en el margen derecho.
+% – Modo texto  : usa \vadjust (inmediato, posición exacta).
+% – Modo matemático: encola para emitir tras el bloque display.
+% – Pase de medición de amsmath (\ifmeasuring@): no hace nada, para no
+%   consumir el flag antes del pase de salida.
+\newcommand{\@guiamargnote}[2]{%
+  \ifmeasuring@\else
+    \if@guianewline
+      \global\@guiaoffset=0pt
+      \global\@guianewlinefalse
+    \fi
+    \edef\@guiacurroffset{\the\@guiaoffset}%
+    \global\advance\@guiaoffset by 2em
+    \ifmmode
+      \@guia@enqueue{#1}{#2}{\@guiacurroffset}%
+    \else
+      \vadjust{%
+        \vbox to 0pt{%
+          \vskip -\baselineskip
+          \hbox to 0pt{%
+            \hskip \dimexpr\textwidth+\marginparsep+6pt+\@guiacurroffset\relax
+            \normalfont\small\textcolor{#1}{#2}%
+            \hss
+          }%
+          \vss
+        }%
+      }%
+    \fi
+  \fi
+}
+
+\newcommand{\guia}[2][0]{%
+  % Acumula puntos positivos siempre, pero solo en el pase de salida de amsmath.
+  \ifmeasuring@\else
+    \ifnum#1>0\relax
+      \addtocounter{@guiaptsej}{#1}%
+      \addtocounter{@guiaptssub}{#1}%
+    \fi
+  \fi
+  \if@guia
+    \ifnum#1>0\relax
+      \ifmmode
+        % En modo matemático: subrayado azul con \underline (text color normalcolor).
+        {\color{\guiacolorpositivo}\underline{{\normalcolor #2}}}%
+        \@guiamargnote{\guiacolorpositivo}{$+$#1}%
+      \else
+        {\color{\guiacolorpositivo}\uline{{\normalcolor #2}}}\@guiamargnote{\guiacolorpositivo}{$+$#1}%
+      \fi
+    \else
+      \ifnum#1<0\relax
+        \ifmmode
+          #2\@guiamargnote{\guiacolornegativo}{#1}%
+        \else
+          \@guiastrike{\guiacolornegativo}{#2}\@guiamargnote{\guiacolornegativo}{#1}%
+        \fi
+      \else
+        #2%
+      \fi
+    \fi
+  \else
+    #2%
+  \fi
 }
 
 %% ── Caja solución ────────────────────────────────────────────────────────────
@@ -187,11 +380,56 @@
   linecolor=black,
 }
 
+\mdfdefinestyle{estiloguia}{%
+  backgroundcolor=gray!20,
+  roundcorner=5pt,
+  linewidth=1pt,
+  linecolor=black,
+}
+
+% \guiasincaja : desactiva la caja en el entorno solucion con opción guia.
+% Llamar en el preámbulo para obtener el comportamiento antiguo (sin caja).
+\newif\if@guiacaja\@guiacajatrue
+\newcommand{\guiasincaja}{\@guiacajafalse}
+
+% Núcleo del contenido de la guía (reutilizado con y sin caja).
+\newcommand{\@guiacuerpo}{%
+  \noindent\textbf{Guía de calificación:}\par
+  \begingroup
+    \global\@guianewlinetrue  % el primer \guia siempre reinicia el offset
+    % Resetea el flag al INICIO de cualquier display (cubre equation, align,
+    % gather, \[...\], y cualquier otro entorno display de amsmath).
+    \edef\@guia@savedevdisplay{\the\everydisplay}%
+    \everydisplay{\@guia@savedevdisplay\global\@guianewlinetrue}%
+    % Resetea el flag también al TERMINAR los entornos display comunes,
+    % para que el texto que sigue al display empiece con offset=0.
+    \let\@guia@saved@bracket\]
+    \def\]{\@guia@saved@bracket\@guia@flushqueue\global\@guianewlinetrue}%
+    \let\@guia@savedendalign\endalign
+    \def\endalign{\@guia@savedendalign\@guia@flushqueue\global\@guianewlinetrue}%
+    \let\@guia@savedendgather\endgather
+    \def\endgather{\@guia@savedendgather\@guia@flushqueue\global\@guianewlinetrue}%
+    \BODY
+  \endgroup
+}
+
 \NewEnviron{solucion}{%
   \if@soluciones
-    \begin{mdframed}[style=estilosolucion]
-    \textbf{Solución:}
-    \BODY
-    \end{mdframed}
+    \if@guia
+      \if@guiacaja
+        \begin{mdframed}[style=estiloguia]
+          \@guiacuerpo
+        \end{mdframed}
+      \else
+        \par\vspace{4pt}%
+        \@guiacuerpo
+        \par\vspace{4pt}%
+      \fi
+    \else
+      \begin{mdframed}[style=estilosolucion]
+      \textbf{Solución:}
+      \BODY
+      \end{mdframed}
+    \fi
   \fi
 }
