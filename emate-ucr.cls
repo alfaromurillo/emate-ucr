@@ -253,6 +253,36 @@
 % Offset horizontal acumulado para anotaciones en la misma línea visual.
 \newlength{\@guiaoffset}
 \global\@guiaoffset=0pt
+\newdimen\@guia@voffsetdim
+
+% Subrayado con texto en color normal (negro) y regla en color #1.
+% Permite saltos de línea. Replica la estructura de \uline (de ulem) pero con
+% \color{#1} explícito en la marca, sin tocar el color del texto.
+% Subrayado sólido con texto en negro y regla en color #1.
+%
+% Estrategia:
+%   – La capa exterior {\color{#1}...} establece el color del contexto,
+%     que es el que hereda \leaders\hrule (la regla de subrayado).
+%   – Dentro del grupo exterior se inyecta \color{black} en \UL@hook,
+%     que ulem ejecuta al inicio de \UL@on, justo antes de procesar las
+%     palabras. Así cada hbox de palabra se construye con texto negro.
+%   – \UL@leaders se redefine localmente para que los líderes
+%     entre palabras usen \color{#1} (azul) en lugar del negro que queda
+%     activo tras el hook. Sin esto los líderes inter-palabra serían negros.
+%   – Se usa \uline (no \ULon directo) para respetar su mecanismo
+%     interno y no alterar la interacción con mdframed.
+\newcommand{\@guia@coloruline}[2]{%
+  {\color{#1}%
+   \edef\@guia@ul@color{#1}%
+   \UL@hook=\expandafter{\the\UL@hook\color{black}}%
+   \def\UL@leaders{{\LA@hskip-\UL@pixel
+     \advance\UL@skip\tw@\UL@pixel
+     \color{\@guia@ul@color}%
+     \UL@leadtype\LA@hskip\UL@skip
+     \LA@hskip-\UL@pixel}}%
+   \uline{#2}%
+  }%
+}
 
 % Tachado con texto a opacidad plena y línea semi-transparente.
 % Evita \sout (que colorea también el texto) dibujando la regla por separado.
@@ -272,21 +302,24 @@
 % Cola de anotaciones diferidas desde modo matemático.
 % Las celdas de \halign (align*, equation, etc.) atrapan \vadjust; en su lugar
 % las anotaciones se encolan y se emiten en el gancho de \endalign / \].
-\let\@guia@queue\@empty
+% Se usa un registro de tokens (\newtoks) en lugar de \gdef para evitar
+% conflictos con \expandafter en el contexto de mdframed.
+\newtoks\@guia@queue
+\@guia@queue={}
+\newif\if@guia@queuenonempty
 
-% Agrega una anotación a la cola, guardando el offset en el momento de la llamada.
-\newcommand{\@guia@enqueue}[3]{%
-  % #1=color  #2=texto  #3=offset ya evaluado (string de dimensión)
-  \expandafter\gdef\expandafter\@guia@queue\expandafter{%
-    \@guia@queue
-    \@guia@vlistnote{#1}{#2}{#3}%
-  }%
+% Agrega una anotación a la cola.
+\newcommand{\@guia@enqueue}[4]{%
+  % #1=color  #2=texto  #3=hoffset ya evaluado  #4=voffset ya evaluado (dim concreta)
+  \global\@guia@queue=\expandafter{\the\@guia@queue\@guia@vlistnote{#1}{#2}{#3}{#4}}%
+  \global\@guia@queuenonemptytrue
 }
 
-% Emite una anotación directamente en la lista vertical (o dentro de \vadjust).
-% El \hbox to 0pt parte del margen izquierdo del área de texto.
-\newcommand{\@guia@vlistnote}[3]{%
+% Emite una anotación directamente en la lista vertical.
+% #1=color  #2=texto  #3=hoffset (dim concreta)  #4=voffset (dim concreta)
+\newcommand{\@guia@vlistnote}[4]{%
   \vbox to 0pt{%
+    \vskip #4\relax
     \hbox to 0pt{%
       \hskip \dimexpr\textwidth+\marginparsep+6pt+#3\relax
       \normalfont\small\textcolor{#1}{#2}%
@@ -298,13 +331,14 @@
 
 % Vacía la cola: en modo vertical la emite directamente; en horizontal, via \vadjust.
 \newcommand{\@guia@flushqueue}{%
-  \ifx\@guia@queue\@empty\else
+  \if@guia@queuenonempty
     \ifvmode
-      \@guia@queue
+      \the\@guia@queue
     \else
-      \vadjust{\@guia@queue}%
+      \vadjust{\the\@guia@queue}%
     \fi
-    \global\let\@guia@queue\@empty
+    \global\@guia@queue={}%
+    \global\@guia@queuenonemptyfalse
   \fi
 }
 
@@ -313,7 +347,8 @@
 % – Modo matemático: encola para emitir tras el bloque display.
 % – Pase de medición de amsmath (\ifmeasuring@): no hace nada, para no
 %   consumir el flag antes del pase de salida.
-\newcommand{\@guiamargnote}[2]{%
+\newcommand{\@guiamargnote}[3]{%
+  % #1=color  #2=texto  #3=expresión de dimensión para voffset (default 0pt)
   \ifmeasuring@\else
     \if@guianewline
       \global\@guiaoffset=0pt
@@ -322,7 +357,24 @@
     \edef\@guiacurroffset{\the\@guiaoffset}%
     \global\advance\@guiaoffset by 2em
     \ifmmode
-      \@guia@enqueue{#1}{#2}{\@guiacurroffset}%
+      % Calcula el voffset como dimensión concreta aquí, fuera del contexto
+      % de mdframed, para que \the\@guia@voffsetdim produzca un valor seguro
+      % (p.ej. "-28.8pt") que se almacena en la cola.
+      % #3 acepta cualquier expresión de dimensión, p.ej. -2\baselineskip.
+      \edef\@guia@tmpvoff{#3}%
+      \ifx\@guia@tmpvoff\@empty
+        \@guia@voffsetdim=0pt
+      \else
+        \@guia@voffsetdim=#3\relax
+      \fi
+      \edef\@guia@tmp@enqueue{%
+        \noexpand\@guia@enqueue
+          {\unexpanded{#1}}%
+          {\unexpanded{#2}}%
+          {\@guiacurroffset}%
+          {\the\@guia@voffsetdim}%
+      }%
+      \@guia@tmp@enqueue
     \else
       \vadjust{%
         \vbox to 0pt{%
@@ -339,8 +391,19 @@
   \fi
 }
 
-\newcommand{\guia}[2][0]{%
-  % Acumula puntos positivos siempre, pero solo en el pase de salida de amsmath.
+% \guia[pts][voffset]{texto}
+% pts     : puntos (opcional, default 0).
+% voffset : desplazamiento vertical de la anotación en modo display (opcional,
+%           default 0pt). Acepta cualquier expresión de dimensión de TeX.
+%           Un valor negativo sube la anotación.
+%           Ej.: \guia[1][-2\baselineskip]{fórmula}  →  sube 2 líneas
+\newcommand{\guia}[1][0]{%
+  \@ifnextchar[%
+    {\@guia@ii{#1}}%
+    {\@guia@ii{#1}[0pt]}%
+}
+\def\@guia@ii#1[#2]#3{%
+  % #1=pts  #2=voffset  #3=contenido
   \ifmeasuring@\else
     \ifnum#1>0\relax
       \addtocounter{@guiaptsej}{#1}%
@@ -350,25 +413,24 @@
   \if@guia
     \ifnum#1>0\relax
       \ifmmode
-        % En modo matemático: subrayado azul con \underline (text color normalcolor).
-        {\color{\guiacolorpositivo}\underline{{\normalcolor #2}}}%
-        \@guiamargnote{\guiacolorpositivo}{$+$#1}%
+        {\color{\guiacolorpositivo}\underline{{\normalcolor #3}}}%
+        \@guiamargnote{\guiacolorpositivo}{$+$#1}{#2}%
       \else
-        {\color{\guiacolorpositivo}\uline{{\normalcolor #2}}}\@guiamargnote{\guiacolorpositivo}{$+$#1}%
+        \@guia@coloruline{\guiacolorpositivo}{#3}\@guiamargnote{\guiacolorpositivo}{$+$#1}{#2}%
       \fi
     \else
       \ifnum#1<0\relax
         \ifmmode
-          #2\@guiamargnote{\guiacolornegativo}{#1}%
+          #3\@guiamargnote{\guiacolornegativo}{#1}{#2}%
         \else
-          \@guiastrike{\guiacolornegativo}{#2}\@guiamargnote{\guiacolornegativo}{#1}%
+          \@guiastrike{\guiacolornegativo}{#3}\@guiamargnote{\guiacolornegativo}{#1}{#2}%
         \fi
       \else
-        #2%
+        #3%
       \fi
     \fi
   \else
-    #2%
+    #3%
   \fi
 }
 
