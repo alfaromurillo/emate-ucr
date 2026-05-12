@@ -406,8 +406,8 @@
   % #1=pts  #2=voffset  #3=contenido
   \ifmeasuring@\else
     \ifnum#1>0\relax
-      \addtocounter{@guiaptsej}{#1}%
-      \addtocounter{@guiaptssub}{#1}%
+      \global\advance\c@@guiaptsej by #1\relax
+      \global\advance\c@@guiaptssub by #1\relax
     \fi
   \fi
   \if@guia
@@ -493,5 +493,7 @@
       \BODY
       \end{mdframed}
     \fi
+  \else
+    \setbox\@tempboxa\vbox{\BODY}%
   \fi
 }
