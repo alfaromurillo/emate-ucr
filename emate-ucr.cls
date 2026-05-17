@@ -47,6 +47,7 @@
 \RequirePackage[normalem]{ulem}    % \uline y \sout para guía de calificación
 \RequirePackage{transparent}       % opacidad del tachado en guía negativa
 
+
 %% ── Metadatos obligatorios (deben definirse en el .tex) ──────────────────────
 \newcommand{\curso}[1]{\def\@curso{#1}}
 \newcommand{\encabezado}[1]{\def\@encabezado{#1}}
@@ -255,33 +256,31 @@
 \global\@guiaoffset=0pt
 \newdimen\@guia@voffsetdim
 
-% Subrayado con texto en color normal (negro) y regla en color #1.
-% Permite saltos de línea. Replica la estructura de \uline (de ulem) pero con
-% \color{#1} explícito en la marca, sin tocar el color del texto.
-% Subrayado sólido con texto en negro y regla en color #1.
+% Subrayado coloreado con salto de línea correcto dentro de mdframed.
 %
 % Estrategia:
-%   – La capa exterior {\color{#1}...} establece el color del contexto,
-%     que es el que hereda \leaders\hrule (la regla de subrayado).
-%   – Dentro del grupo exterior se inyecta \color{black} en \UL@hook,
-%     que ulem ejecuta al inicio de \UL@on, justo antes de procesar las
-%     palabras. Así cada hbox de palabra se construye con texto negro.
-%   – \UL@leaders se redefine localmente para que los líderes
-%     entre palabras usen \color{#1} (azul) en lugar del negro que queda
-%     activo tras el hook. Sin esto los líderes inter-palabra serían negros.
-%   – Se usa \uline (no \ULon directo) para respetar su mecanismo
-%     interno y no alterar la interacción con mdframed.
+%   – La capa exterior {\color{#1}...} fija el color de contexto (azul),
+%     que hereda \leaders\hrule (la regla de subrayado).
+%   – \UL@hook se limpia antes de cada uso (evita acumulación entre llamadas)
+%     y se carga con \color{black} para que el texto de cada palabra sea negro.
+%   – \UL@leaders se redefine localmente: añade \color{#1} antes de los
+%     líderes inter-palabra para que la regla sea del color correcto.
+%   – Los registros globales de token que \uline modifica (\everymath,
+%     \everyvbox, \everyhbox) se salvan antes y se restauran después.
+%     Esto evita que los ganchos de ulem interfieran con la medición de altura
+%     que hace mdframed al cerrar su caja.
 \newcommand{\@guia@coloruline}[2]{%
   {\color{#1}%
-   \edef\@guia@ul@color{#1}%
-   \UL@hook=\expandafter{\the\UL@hook\color{black}}%
+   \edef\@guia@ul@pdfcolor{\current@color}%
+   \global\UL@hook={}%
+   \global\UL@hook={\color{black}}%
    \def\UL@leaders{{\LA@hskip-\UL@pixel
      \advance\UL@skip\tw@\UL@pixel
-     \color{\@guia@ul@color}%
+     \pdfcolorstack\@pdfcolorstack push{\@guia@ul@pdfcolor}%
      \UL@leadtype\LA@hskip\UL@skip
+     \pdfcolorstack\@pdfcolorstack pop\relax
      \LA@hskip-\UL@pixel}}%
-   \uline{#2}%
-  }%
+   \uline{#2}}%
 }
 
 % Tachado con texto a opacidad plena y línea semi-transparente.
