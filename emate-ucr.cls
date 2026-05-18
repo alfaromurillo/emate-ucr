@@ -256,30 +256,32 @@
 \global\@guiaoffset=0pt
 \newdimen\@guia@voffsetdim
 
-% Subrayado coloreado con salto de línea correcto dentro de mdframed.
+% Subrayado coloreado sin escape de mdframed, texto negro, líderes en color guía.
 %
 % Estrategia:
-%   – La capa exterior {\color{#1}...} fija el color de contexto (azul),
-%     que hereda \leaders\hrule (la regla de subrayado).
-%   – \UL@hook se limpia antes de cada uso (evita acumulación entre llamadas)
-%     y se carga con \color{black} para que el texto de cada palabra sea negro.
-%   – \UL@leaders se redefine localmente: añade \color{#1} antes de los
-%     líderes inter-palabra para que la regla sea del color correcto.
-%   – Los registros globales de token que \uline modifica (\everymath,
-%     \everyvbox, \everyhbox) se salvan antes y se restauran después.
-%     Esto evita que los ganchos de ulem interfieran con la medición de altura
-%     que hace mdframed al cerrar su caja.
+%   – La capa exterior {\color{#1}...} establece el color de guía en la lista
+%     exterior de G4. Los líderes se dibujan en esa lista → quedan en azul.
+%   – \UL@hook se vacía: nada se inyecta en la lista exterior de G4.
+%   – \UL@start se redefine localmente. El \color{black} se coloca DENTRO de
+%     G_B (el \bgroup interno de la caja de palabra), ANTES de los kerns de
+%     marca. Así el push{black} queda dentro de la caja de palabra (G_A).
+%     El \aftergroup de \color{black} dispara \reset@color cuando G_B se cierra
+%     (en el contexto de G_A = dentro de la caja), no en la lista exterior.
+%     Resultado: el pop también queda dentro de la caja. Caja = push+texto+pop
+%     (texto negro); lista exterior = solo color guía (líderes azules).
 \newcommand{\@guia@coloruline}[2]{%
   {\color{#1}%
-   \edef\@guia@ul@pdfcolor{\current@color}%
    \global\UL@hook={}%
-   \global\UL@hook={\color{black}}%
-   \def\UL@leaders{{\LA@hskip-\UL@pixel
-     \advance\UL@skip\tw@\UL@pixel
-     \pdfcolorstack\@pdfcolorstack push{\@guia@ul@pdfcolor}%
-     \UL@leadtype\LA@hskip\UL@skip
-     \pdfcolorstack\@pdfcolorstack pop\relax
-     \LA@hskip-\UL@pixel}}%
+   \def\UL@start{%
+     \setbox\UL@box\hbox\bgroup
+     \everyhbox{\UL@hrest}%
+     \let\UL@start\@empty
+     \def\UL@unegroup{\bgroup\bgroup}%
+     \let\UL@leadtype\@empty
+     \bgroup
+     \color{black}%
+     \kern-3sp\kern3sp
+     \if@ignore\global\@ignorefalse\ignorespaces\fi}%
    \uline{#2}}%
 }
 
