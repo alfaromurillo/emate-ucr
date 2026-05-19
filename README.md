@@ -232,7 +232,7 @@ Por ejemplo, `\nombreejercicio{Problema}` produce `Problema 1.`, `Problema 2.`, 
 | `\pts{N}` | Imprime `(N pts.)` alineado a la derecha; usar dentro de `\item` |
 | `\totalpuntos` | Total acumulado de puntos de todos los `\begin{ejercicio}[N]` |
 | `\begin{solucion}` | Solución (visible solo con opción `[soluciones]`) |
-| `\guia[N]{texto}` | Marca un fragmento de solución con N puntos (ver sección Guía de calificación) |
+| `\guia[N][voffset][ulpad]{texto}` | Marca un fragmento de solución con N puntos (ver sección Guía de calificación) |
 | `\ptsguiaej` | Suma de `\guia[N]` (N > 0) en el ejercicio actual; usar como argumento de `ejercicio` |
 | `\ptsguiasubej` | Suma de `\guia[N]` (N > 0) en el ítem actual de `subejercicios` |
 
@@ -274,11 +274,19 @@ O directamente: `\documentclass[guia]{emate-ucr}`.
 
 ### Comando `\guia`
 
+Sintaxis completa (los tres argumentos entre corchetes son opcionales):
+
 ```latex
-\guia[N]{texto}
+\guia[N][voffset][ulpad]{texto}
 ```
 
-Dentro de un entorno `solucion`, marca `texto` con N puntos:
+| Argumento | Tipo | Predeterminado | Descripción |
+|---|---|---|---|
+| `N` | entero | `0` | Puntos del fragmento |
+| `voffset` | dimensión | automático | Ajuste vertical de la anotación al margen en modo display |
+| `ulpad` | dimensión | `0pt` | Ajuste de la profundidad del subrayado |
+
+Comportamiento según el valor de `N`:
 
 | N | Resultado (con opción `guia`) |
 |---|---|
@@ -306,6 +314,42 @@ Ejemplo de uso:
   \]
 \end{solucion}
 ```
+
+#### Ajuste vertical de la anotación al margen (`[voffset]`)
+
+En entornos display math (`\[...\]`, `align*`, `gather*`, etc.), la anotación
+al margen se emite al terminar el bloque. Por defecto se sube automáticamente
+`\guiadisplayvoffset` (valor inicial: `-2\baselineskip`) para quedar junto a la
+fórmula. En modo texto e inline math (`$...$`) el desplazamiento es `0pt`.
+
+Usar `[voffset]` solo cuando la posición automática no es correcta:
+
+```latex
+\guia[1][-3\baselineskip]{formula larga}   % sube 3 líneas en lugar de 2
+\guia[1][0pt]{formula}                     % sin desplazamiento
+```
+
+Para cambiar el desplazamiento predeterminado en todo el documento:
+
+```latex
+\renewcommand{\guiadisplayvoffset}{-1.5\baselineskip}
+```
+
+#### Ajuste del subrayado sobre fracciones (`[ulpad]`)
+
+Cuando el contenido subrayado incluye una fracción con denominador (`\tfrac`,
+`\frac`), el subrayado puede cruzar visualmente el denominador porque `\uline`
+fija la profundidad del subrayado a ~3.4 pt (suficiente para descenders
+normales, pero no para fracciones).
+
+El argumento `[ulpad]` baja el subrayado la cantidad indicada:
+
+```latex
+\guia[1][][3pt]{$\theta = \tfrac{\pi}{2}$}   % baja el subrayado 3 pt
+```
+
+El segundo argumento se omite con `[]` para conservar el voffset automático.
+Valores típicos: `2pt`–`4pt`. Un valor negativo sube el subrayado.
 
 ### Puntos automáticos con `\ptsguiaej` y `\ptsguiasubej`
 
