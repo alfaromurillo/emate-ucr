@@ -269,9 +269,18 @@
 %     (en el contexto de G_A = dentro de la caja), no en la lista exterior.
 %     Resultado: el pop también queda dentro de la caja. Caja = push+texto+pop
 %     (texto negro); lista exterior = solo color guía (líderes azules).
-\newcommand{\@guia@coloruline}[2]{%
+\newcommand{\@guia@coloruline}[3]{%
+  % #1=color #2=content #3=ulpad (dimensión; 0pt=sin ajuste)
   {\color{#1}%
    \global\UL@hook={}%
+   \ifdim#3=\z@\else
+     % Fijar \ULdepth = profundidad auto + pad, antes de que \uline abra G4.
+     % \UL@setULdepth (dentro de G4) solo actúa si \ULdepth=\maxdimen, por lo
+     % que fijar un valor concreto aquí lo anula.  La asignación es local al
+     % grupo {\color{#1}...}, así que se restaura a \maxdimen al terminar.
+     \setbox\@tempboxa\hbox{{(j}}%
+     \ULdepth\dp\@tempboxa \advance\ULdepth.4\p@ \advance\ULdepth#3\relax
+   \fi
    \def\UL@start{%
      \setbox\UL@box\hbox\bgroup
      \everyhbox{\UL@hrest}%
@@ -399,12 +408,16 @@
 %   \renewcommand{\guiadisplayvoffset}{-1.5\baselineskip}
 \newcommand{\guiadisplayvoffset}{-2\baselineskip}
 
-% \guia[pts][voffset]{texto}
+% \guia[pts][voffset][ulpad]{texto}
 % pts     : puntos (opcional, default 0).
 % voffset : desplazamiento vertical de la anotación en modo display (opcional).
 %           Sin [voffset]: usa \guiadisplayvoffset en display math, 0pt en texto.
 %           Un valor negativo sube la anotación.
 %           Ej.: \guia[1][-3\baselineskip]{fórmula}  →  sube 3 líneas
+% ulpad   : padding adicional al subrayado de \uline (opcional, default 0pt).
+%           Positivo = baja el subrayado; negativo = lo sube.
+%           Útil cuando el subrayado cruza el denominador de \tfrac en texto.
+%           Ej.: \guia[1][][2pt]{$\theta = \tfrac{\pi}{2}$}
 \newcommand{\guia}[1][0]{%
   \@ifnextchar[%
     {\@guia@ii{#1}}%
@@ -421,8 +434,14 @@
   \fi
 }
 \def\@guia@ii@auto#1{\@guia@ii{#1}[\@guia@auto@voff]}
-\def\@guia@ii#1[#2]#3{%
-  % #1=pts  #2=voffset  #3=contenido
+% \@guia@ii detecta si viene [ulpad] tras [voffset].
+\def\@guia@ii#1[#2]{%
+  \@ifnextchar[%
+    {\@guia@iii{#1}{#2}}%
+    {\@guia@iii{#1}{#2}[0pt]}%
+}
+\def\@guia@iii#1#2[#3]#4{%
+  % #1=pts  #2=voffset  #3=ulpad  #4=contenido
   \ifmeasuring@\else
     \ifnum#1>0\relax
       \global\advance\c@@guiaptsej by #1\relax
@@ -432,24 +451,24 @@
   \if@guia
     \ifnum#1>0\relax
       \ifmmode
-        {\color{\guiacolorpositivo}\underline{{\normalcolor #3}}}%
+        {\color{\guiacolorpositivo}\underline{{\normalcolor #4}}}%
         \@guiamargnote{\guiacolorpositivo}{$+$#1}{#2}%
       \else
-        \@guia@coloruline{\guiacolorpositivo}{#3}\@guiamargnote{\guiacolorpositivo}{$+$#1}{#2}%
+        \@guia@coloruline{\guiacolorpositivo}{#4}{#3}\@guiamargnote{\guiacolorpositivo}{$+$#1}{#2}%
       \fi
     \else
       \ifnum#1<0\relax
         \ifmmode
-          #3\@guiamargnote{\guiacolornegativo}{#1}{#2}%
+          #4\@guiamargnote{\guiacolornegativo}{#1}{#2}%
         \else
-          \@guiastrike{\guiacolornegativo}{#3}\@guiamargnote{\guiacolornegativo}{#1}{#2}%
+          \@guiastrike{\guiacolornegativo}{#4}\@guiamargnote{\guiacolornegativo}{#1}{#2}%
         \fi
       \else
-        #3%
+        #4%
       \fi
     \fi
   \else
-    #3%
+    #4%
   \fi
 }
 
