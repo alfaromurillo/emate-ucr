@@ -392,17 +392,35 @@
   \fi
 }
 
+% Desplazamiento vertical por defecto para anotaciones en display math.
+% Se aplica cuando \guia se usa sin argumento [voffset] explícito dentro de
+% \[...\], align, gather, etc.  Un valor negativo sube la anotación.
+% Ajustar en el preámbulo si la posición no es correcta:
+%   \renewcommand{\guiadisplayvoffset}{-1.5\baselineskip}
+\newcommand{\guiadisplayvoffset}{-2\baselineskip}
+
 % \guia[pts][voffset]{texto}
 % pts     : puntos (opcional, default 0).
-% voffset : desplazamiento vertical de la anotación en modo display (opcional,
-%           default 0pt). Acepta cualquier expresión de dimensión de TeX.
+% voffset : desplazamiento vertical de la anotación en modo display (opcional).
+%           Sin [voffset]: usa \guiadisplayvoffset en display math, 0pt en texto.
 %           Un valor negativo sube la anotación.
-%           Ej.: \guia[1][-2\baselineskip]{fórmula}  →  sube 2 líneas
+%           Ej.: \guia[1][-3\baselineskip]{fórmula}  →  sube 3 líneas
 \newcommand{\guia}[1][0]{%
   \@ifnextchar[%
     {\@guia@ii{#1}}%
-    {\@guia@ii{#1}[0pt]}%
+    {\@guia@ii@auto{#1}}%
 }
+% Cuando no se da [voffset]: detecta display math vs. texto/inline.
+% \@guia@auto@voff se expande al voffset correcto según el modo actual;
+% se evalúa en \@guiamargnote (dentro de \edef y luego en asignación de \dimen).
+\def\@guia@auto@voff{%
+  \ifmmode
+    \ifinner 0pt\else \guiadisplayvoffset \fi
+  \else
+    0pt%
+  \fi
+}
+\def\@guia@ii@auto#1{\@guia@ii{#1}[\@guia@auto@voff]}
 \def\@guia@ii#1[#2]#3{%
   % #1=pts  #2=voffset  #3=contenido
   \ifmeasuring@\else
