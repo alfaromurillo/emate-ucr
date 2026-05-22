@@ -161,14 +161,8 @@
 }
 \newcommand{\totalpuntos}{\@totalpuntosfinal}
 
-%% ── Abecedario sin ñ ─────────────────────────────────────────────────────────
-% babel/español redefine \@alph para incluir ñ; lo sobreescribimos en su propio hook
-\addto\extrasspanish{%
-  \renewcommand{\@alph}[1]{%
-    \ifcase#1\or a\or b\or c\or d\or e\or f\or g\or h\or i\or j\or k\or
-    l\or m\or n\or o\or p\or q\or r\or s\or t\or u\or v\or w\or x\or y\or z\fi%
-  }%
-}
+% babel-spanish ya redefine \@alph con las 27 letras del abecedario español
+% (a-n, ñ, o-z); no es necesario sobreescribirlo aquí.
 
 %% ── Conteo automático de puntos por ejercicio y subejercicio ─────────────────
 % \puntosejercicio   : suma de \guia[N] (N>0) en el ejercicio actual.
