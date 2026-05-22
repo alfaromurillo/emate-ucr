@@ -439,12 +439,14 @@ automáticamente.
 
 ## Ejemplos
 
-El directorio incluye tres ejemplos compilables con sus versiones de soluciones:
+El directorio incluye tres ejemplos compilables con sus versiones de soluciones. Cada archivo `.tex` tiene su PDF compilado correspondiente:
 
 | Archivo | Descripción |
 |---|---|
 | `ejemplo_ejercicios.tex` | Hoja de ejercicios sencilla |
+| `ejemplo_ejercicios_soluciones.tex` | Versión con soluciones de la hoja de ejercicios |
 | `ejemplo_prueba_corta.tex` | Prueba corta con metadatos e instrucciones |
+| `ejemplo_prueba_corta_soluciones.tex` | Versión con soluciones de la prueba corta |
 | `ejemplo_examen.tex` | Examen con todos los comandos disponibles |
 | `ejemplo_examen_soluciones.tex` | Versión con soluciones del examen |
 | `ejemplo_examen_guia.tex` | Versión de guía de calificación del examen |
