@@ -435,6 +435,31 @@ de `\begin{solucion}...\end{solucion}`. Fuera del entorno `solucion`, el
 problema no ocurre porque `\usetikzlibrary{babel}` maneja la desactivación
 automáticamente.
 
+### Puntuación al final de un argumento de `\guia`
+
+El carácter `.` (punto) es activo en `babel-spanish` para el separador decimal.
+Cuando la opción `soluciones` **no** está activa, `environ` re-expande el cuerpo
+del entorno `solucion` en una caja invisible. Si el último carácter antes del `}`
+de cierre de `\guia{...}` es un punto, babel intenta construir
+`\csname system@active.\endcsname` para buscar el shorthand, lo cual desencadena
+una expansión recursiva del punto activo y produce el error `Extra \endcsname`.
+
+**Incorrecto** (punto dentro de las llaves):
+
+```latex
+\guia[1][-4\baselineskip]{f_y = \frac{1}{x}.}
+```
+
+**Correcto** (punto fuera de las llaves):
+
+```latex
+\guia[1][-4\baselineskip]{f_y = \frac{1}{x}}.
+```
+
+La misma regla aplica a cualquier signo de puntuación (`,`, `;`, `:`) al final
+del argumento. El PDF se genera de todas formas (TeX recupera del error), pero el
+log reporta `Extra \endcsname` / `Extra \fi` en la línea `\end{solucion}`.
+
 ---
 
 ## Ejemplos
