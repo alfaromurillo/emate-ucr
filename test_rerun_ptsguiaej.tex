@@ -1,0 +1,34 @@
+%% Test: \begin{ejercicio}[\ptsguiaej] + \totalpuntos
+%% Esperado:
+%%   1ª compilación : aviso (ptsguiaej incorrecto → totalpuntos incorrecto)
+%%   2ª compilación : aviso (ptsguiaej correcto, pero totalpuntos acumuló mal en 1ª)
+%%   3ª compilación : sin aviso
+\documentclass[soluciones]{emate-ucr}
+\curso{Test}
+\encabezado{Test rerun – ptsguiaej + totalpuntos}
+\valor{\totalpuntos\ puntos}
+
+\begin{document}
+\imprimirtitulo
+
+\begin{ejercicio}[\ptsguiaej]
+  Primer ejercicio.
+  \begin{solucion}
+    \guia[3]{Paso correcto.}
+    \guia[2]{Otro paso.}
+  \end{solucion}
+\end{ejercicio}
+
+\begin{ejercicio}[\ptsguiaej]
+  Segundo ejercicio.
+  \begin{solucion}
+    \guia[4]{Resultado final.}
+  \end{solucion}
+\end{ejercicio}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: LaTeX
+%%% TeX-master: t
+%%% End:

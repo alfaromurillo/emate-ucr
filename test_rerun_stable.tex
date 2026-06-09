@@ -1,0 +1,19 @@
+%% Test: documento sin \totalpuntos ni \ptsguiaej
+%% Esperado: ninguna compilación emite aviso
+\documentclass{emate-ucr}
+\curso{Test}
+\encabezado{Test rerun – estable}
+
+\begin{document}
+\imprimirtitulo
+
+\begin{ejercicio}[5]
+  Ejercicio con puntos fijos, sin \verb|\totalpuntos|.
+\end{ejercicio}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: LaTeX
+%%% TeX-master: t
+%%% End:

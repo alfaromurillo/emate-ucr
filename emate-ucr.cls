@@ -154,12 +154,40 @@
 % la primera compilación guarda el total en el .aux; la segunda lo lee).
 \newcounter{totalpts}
 \newcommand{\@totalpuntosfinal}{??}
+
+% Flag global: se activa si algún total de puntos cambió respecto a la
+% compilación anterior.  \AtEndDocument emite "Rerun to get point totals
+% right" si está activo; AUCTeX y latexmk detectan "Rerun" y recompilan
+% automáticamente.
+\newif\if@emate@needrerun\@emate@needrerunfalse
+
 \AtEndDocument{%
+  % Solo compara \totalpuntos si fue invocado en el documento; evita falsos
+  % positivos en documentos que tienen \begin{ejercicio}[N] pero no usan
+  % \totalpuntos.
+  \if@emate@totalpuntosused
+    \edef\@totalpuntosnew{\arabic{totalpts}}%
+    \ifx\@totalpuntosnew\@totalpuntosfinal\else
+      \global\@emate@needreruntrue
+    \fi
+  \fi
   \immediate\write\@auxout{%
     \string\gdef\string\@totalpuntosfinal{\arabic{totalpts}}%
   }%
+  \if@emate@needrerun
+    \PackageWarningNoLine{emate-ucr}{%
+      Rerun to get point totals right%
+    }%
+  \fi
 }
-\newcommand{\totalpuntos}{\@totalpuntosfinal}
+
+% \totalpuntos: registra que fue usado (para el chequeo de recompilación) y
+% expande al total guardado en el .aux de la compilación anterior.
+\newif\if@emate@totalpuntosused\@emate@totalpuntosusedfalse
+\newcommand{\totalpuntos}{%
+  \global\@emate@totalpuntosusedtrue
+  \@totalpuntosfinal
+}
 
 % babel-spanish ya redefine \@alph con las 27 letras del abecedario español
 % (a-n, ñ, o-z); no es necesario sobreescribirlo aquí.
@@ -219,6 +247,17 @@
   \par\vspace{4mm}\noindent\textbf{\@nombreejercicio\ \arabic{ejercicio}.}%
   \ifx&#1&\else{ \normalfont(#1 pts.)}\addtocounter{totalpts}{#1}\fi\quad
 }{%
+  % Detecta si \ptsguiaej cambió para este ejercicio respecto a la compilación
+  % anterior.  \@ptsold es 0 cuando ptsej@N no existe aún (primera compilación).
+  \begingroup
+    \edef\@ptsnew{\arabic{@guiaptsej}}%
+    \@ifundefined{ptsej@\arabic{ejercicio}}{%
+      \def\@ptsold{0}%
+    }{%
+      \edef\@ptsold{\csname ptsej@\arabic{ejercicio}\endcsname}%
+    }%
+    \ifx\@ptsnew\@ptsold\else\global\@emate@needreruntrue\fi
+  \endgroup
   \protected@write\@auxout{}{%
     \string\@ptsejstore{\arabic{ejercicio}}{\arabic{@guiaptsej}}%
   }%

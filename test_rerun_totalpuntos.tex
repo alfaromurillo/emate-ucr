@@ -1,0 +1,26 @@
+%% Test: \begin{ejercicio}[N] fijo + \totalpuntos
+%% Esperado:
+%%   1ª compilación : aviso "Rerun to get point totals right"
+%%   2ª compilación : sin aviso
+\documentclass{emate-ucr}
+\curso{Test}
+\encabezado{Test rerun – totalpuntos}
+\valor{\totalpuntos\ puntos}
+
+\begin{document}
+\imprimirtitulo
+
+\begin{ejercicio}[5]
+  Primer ejercicio.
+\end{ejercicio}
+
+\begin{ejercicio}[8]
+  Segundo ejercicio.
+\end{ejercicio}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: LaTeX
+%%% TeX-master: t
+%%% End:
