@@ -61,6 +61,23 @@ The `guia` option implies `soluciones` (solutions are always visible in the guid
 - `\ptsguiaej` / `\ptsguiasubej` — display accumulated `\guia` points for current exercise / sub-item
 - `\nombreejercicio{text}` — overrides exercise label prefix (default: "Ejercicio")
 
+## Example Files
+
+The repo root contains worked examples that double as test cases:
+
+| Base file | What it demonstrates |
+|-----------|---------------------|
+| `ejemplo_ejercicios.tex` + `_soluciones.tex` | Exercise sheet with `subejercicios`, `\pts`, solutions |
+| `ejemplo_prueba_corta.tex` + `_soluciones.tex` | Short quiz (prueba corta) |
+| `ejemplo_examen.tex` + `_soluciones.tex` + `_guia.tex` | Full exam with all three variants |
+
+Real-world usage in `~/documents/projects/ma1022/`:
+- `ejercicios/ejercicios_semana_XX.tex` — weekly exercise sheets
+- `pruebas/` — partial exams (`cuarto_parcial.tex`, etc.) with `_soluciones` and `_guia` variants
+
+`test_rerun.sh` verifies multi-pass compilation stability (runs
+pdflatex twice and diffs the PDF checksums).
+
 ## Class Architecture (`emate-ucr.cls`)
 
 The class extends `article` at 12pt. Point counting uses a LaTeX counter (`puntos`) incremented by each `ejercicio` environment. The `solucion` environment is implemented with the `environ` package: when the `soluciones` option is not set, `\BODY` is discarded; when set, it renders in a colored `mdframed` box.
