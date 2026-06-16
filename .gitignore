@@ -1,13 +1,1 @@
-# Archivos auxiliares de LaTeX
-*.aux
-*.log
-*.out
-*.synctex.gz
-*.fls
-*.fdb_latexmk
-*.toc
-*.lof
-*.lot
-
-# Directorio de AUCTeX
-auto/
+FUTURO.md
