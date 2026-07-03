@@ -12,13 +12,109 @@ partir del mismo archivo fuente.
 
 ## Instalación
 
-Copie los tres archivos siguientes en el mismo directorio donde esté su `.tex`:
+Se necesitan tres archivos: `emate-ucr.cls`, `UCR.png` y `EMat.pdf`.
 
+### Opción rápida: descargar los tres archivos
+
+Descargue cada uno con el botón derecho → "Guardar enlace como..." (o
+`wget`/`curl`) y colóquelos en el mismo directorio que su `.tex`:
+
+- [emate-ucr.cls](https://raw.githubusercontent.com/alfaromurillo/emate-ucr/master/emate-ucr.cls)
+- [UCR.png](https://raw.githubusercontent.com/alfaromurillo/emate-ucr/master/UCR.png)
+- [EMat.pdf](https://raw.githubusercontent.com/alfaromurillo/emate-ucr/master/EMat.pdf)
+
+Por terminal:
+
+```bash
+curl -O https://raw.githubusercontent.com/alfaromurillo/emate-ucr/master/emate-ucr.cls
+curl -O https://raw.githubusercontent.com/alfaromurillo/emate-ucr/master/UCR.png
+curl -O https://raw.githubusercontent.com/alfaromurillo/emate-ucr/master/EMat.pdf
 ```
-emate-ucr.cls
-UCR.png
-EMat.pdf
+
+Con esta opción los tres archivos deben copiarse manualmente a cada
+directorio de proyecto donde se use la clase, y volver a copiarse si se
+actualizan.
+
+### Opción recomendada: clonar el repositorio e instalar con enlaces simbólicos
+
+Clonar el repositorio y enlazar los archivos (en vez de copiarlos) al árbol
+personal de LaTeX permite mantenerlos siempre actualizados con `git pull`,
+sin repetir ningún paso de instalación después:
+
+```bash
+git clone https://github.com/alfaromurillo/emate-ucr.git
 ```
+
+Luego enlace los tres archivos al árbol `texmf` según su sistema operativo
+(instrucciones abajo). A partir de ahí, cada `git pull` dentro del
+directorio `emate-ucr` deja los enlaces apuntando a la versión más reciente
+automáticamente:
+
+```bash
+cd emate-ucr
+git pull
+```
+
+### Instalación permanente en el árbol de LaTeX (`texmf`)
+
+Instalar los archivos en el árbol personal de TeX evita copiarlos en cada
+proyecto: quedan disponibles para cualquier documento del sistema. Se usan
+enlaces simbólicos hacia la copia clonada del repositorio, de modo que un
+`git pull` los actualiza sin más pasos.
+
+**Linux**
+
+```bash
+mkdir -p ~/texmf/tex/latex/emate-ucr
+cd ~/texmf/tex/latex/emate-ucr
+ln -s /ruta/a/emate-ucr/emate-ucr.cls .
+ln -s /ruta/a/emate-ucr/UCR.png .
+ln -s /ruta/a/emate-ucr/EMat.pdf .
+texhash ~/texmf 2>/dev/null || mktexlsr
+```
+
+(Reemplace `/ruta/a/emate-ucr` por la ruta donde clonó el repositorio. Si
+`~/texmf` no está en la ruta de búsqueda de su distribución, verifíquelo con
+`kpsewhich -var-value=TEXMFHOME` y use esa ruta en su lugar.)
+
+**macOS** (con MacTeX)
+
+```bash
+mkdir -p ~/Library/texmf/tex/latex/emate-ucr
+cd ~/Library/texmf/tex/latex/emate-ucr
+ln -s /ruta/a/emate-ucr/emate-ucr.cls .
+ln -s /ruta/a/emate-ucr/UCR.png .
+ln -s /ruta/a/emate-ucr/EMat.pdf .
+sudo texhash
+```
+
+**Windows** (con MiKTeX)
+
+MiKTeX y NTFS sí soportan enlaces simbólicos, pero `mklink` requiere permisos
+de administrador (o el "modo desarrollador" activado en Windows 10/11).
+Desde una terminal (`cmd.exe`) como administrador:
+
+```bat
+mkdir "%USERPROFILE%\texmf\tex\latex\emate-ucr"
+cd "%USERPROFILE%\texmf\tex\latex\emate-ucr"
+mklink emate-ucr.cls C:\ruta\a\emate-ucr\emate-ucr.cls
+mklink UCR.png C:\ruta\a\emate-ucr\UCR.png
+mklink EMat.pdf C:\ruta\a\emate-ucr\EMat.pdf
+```
+
+Luego, en "MiKTeX Console" → "Refresh FNDB" (o `initexmf --update-fndb` desde
+una terminal) para que MiKTeX detecte la clase. Si prefiere no usar enlaces
+simbólicos en Windows, copie los tres archivos directamente a esa carpeta y
+recuerde repetir la copia después de cada `git pull`.
+
+Con TeX Live en Windows el procedimiento es análogo, usando
+`%USERPROFILE%\texmf\tex\latex\emate-ucr` y `texhash` (o `mktexlsr`) desde la
+terminal de TeX Live.
+
+Después de instalar la clase de esta forma, puede compilar cualquier
+documento que use `\documentclass{emate-ucr}` sin tener `emate-ucr.cls`,
+`UCR.png` ni `EMat.pdf` en el mismo directorio, y los `git pull` posteriores
+se reflejan automáticamente sin repetir la instalación.
 
 ---
 
