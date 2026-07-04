@@ -146,7 +146,7 @@
 %% ── Puntos por ítem ──────────────────────────────────────────────────────────
 % \pts{N}: imprime "(N pts.)" alineado a la derecha. Útil para asignar puntos
 % a incisos individuales dentro de subejercicios, p.ej.: \item \pts{3} Enunciado
-\newcommand{\pts}[1]{\hfill\normalfont\ifnum#1=1(#1 pt.)\else(#1 pts.)\fi}
+\newcommand{\pts}[1]{\hfill\normalfont\mbox{\ifnum#1=1(#1 pt.)\else(#1 pts.)\fi}}
 
 %% ── Conteo automático de puntos ──────────────────────────────────────────────
 % Acumula los puntos declarados en \begin{ejercicio}[N].
