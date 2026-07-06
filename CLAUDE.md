@@ -81,9 +81,13 @@ Real-world usage in `~/documents/projects/ma1022/`:
 `tests/test_rerun.sh` verifies multi-pass compilation stability: it
 recompiles `\totalpuntos`/`\ptsguiaej` fixtures several times and
 checks the "Rerun to get point totals right" warning appears/disappears
-on the expected passes. See `tests/README.md`.
+on the expected passes. `tests/test_compile.sh` recompiles fixtures for
+the bugs documented in README's "Notas de compatibilidad" (punctuation/
+`%` inside `\guia{...}`, TikZ inside `solucion`, `\pts` line-breaking/
+singular) and checks the documented-correct pattern still compiles
+clean. See `tests/README.md`.
 
-A `pre-push` git hook (`.githooks/pre-push`) runs this test suite
+A `pre-push` git hook (`.githooks/pre-push`) runs both test suites
 before every `git push` and aborts on failure. Each clone must enable
 it once with `git config core.hooksPath .githooks` (hooks aren't
 tracked by git and don't come along automatically).

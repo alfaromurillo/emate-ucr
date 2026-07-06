@@ -1,9 +1,10 @@
 # Tests de emate-ucr
 
-Este directorio contiene una prueba de regresión para el sistema de
-conteo de puntos de `emate-ucr.cls`.
+Este directorio contiene dos suites de regresión para `emate-ucr.cls`:
+`test_rerun.sh` (conteo de puntos multi-pasada) y `test_compile.sh`
+(patrones documentados en `README.md` que antes rompían la compilación).
 
-## Qué se prueba
+## `test_rerun.sh` — qué se prueba
 
 `\totalpuntos` y `\ptsguiaej` dependen de contadores que solo quedan
 resueltos correctamente después de una segunda pasada de `pdflatex`
@@ -22,36 +23,62 @@ aparezca exactamente en las compilaciones donde se espera — ni de más
 de menos (generaría avisos molestos e innecesarios en documentos
 reales).
 
-## Archivos
-
 | Archivo | Qué ejercita | Avisos esperados |
 |---------|-------------|-------------------|
 | `test_rerun_totalpuntos.tex` | `\totalpuntos` | 1 de 2 compilaciones |
 | `test_rerun_ptsguiaej.tex` | `\ptsguiaej` (modo `guia`) | 2 de 3 compilaciones |
 | `test_rerun_stable.tex` | Documento sin `\totalpuntos` ni `\ptsguiaej` | 0 de 2 compilaciones |
 
-## Cómo correrlo
+## `test_compile.sh` — qué se prueba
+
+Cada fixture reproduce un patrón que la sección "Notas de
+compatibilidad" de `README.md` documenta como *correcto*, y verifica
+que siga compilando sin el error que esa sección describe. Estos son
+bugs reales que mordieron en documentos de `ma1022` antes de
+documentarse el workaround — el objetivo es que un cambio futuro a
+`emate-ucr.cls` no reintroduzca silenciosamente el problema.
+
+| Archivo | Qué ejercita | Se verifica que NO aparezca |
+|---------|-------------|-------------------------------|
+| `test_guia_puntuacion.tex` | Puntuación fuera de `\guia{...}`, modo base | `Extra \endcsname` / `Extra \fi` |
+| `test_guia_percent.tex` | `%` fuera de `\guia{...}` en modo display, modo base | `Incompatible glue units` |
+| `test_tikz_solucion.tex` | TikZ en `solucion` con `\shorthandoff{>}`, modo base | cualquier error de LaTeX |
+| `test_tikz_solucion_soluciones.tex` | Igual, modo `soluciones` | cualquier error de LaTeX |
+| `test_pts_format.tex` | `\pts{2}` no se parte entre líneas (minipage angosto); `\pts{1}` usa singular | ausencia de `(2 pts.)`/`(1 pt.)` contiguos en el PDF, o presencia de `(1 pts.)` |
+
+`test_pts_format.tex` usa `pdftotext` (parte de `poppler-utils`) para
+extraer el texto del PDF en vez de grepear el `.log`, porque el bug que
+prueba es de *layout* (un salto de línea en medio de la anotación), no
+un error de compilación.
+
+Importante: estos tests prueban el **patrón correcto/documentado**, no
+que el patrón incorrecto siga fallando. Si algún día se arregla la
+causa raíz en `babel`/`environ`, estos tests deberían seguir pasando
+sin cambios — solo se rompen si algo deja de funcionar.
+
+## Cómo correrlos
 
 ```bash
 cd tests
 ./test_rerun.sh
+./test_compile.sh
 ```
 
-El script limpia los auxiliares de cada archivo antes de empezar,
-compila con `pdflatex -synctex=1 -interaction=nonstopmode` y revisa el
-`.log` resultante en busca del aviso. Sale con código distinto de cero
-si alguna compilación no coincide con lo esperado (útil para CI).
+Ambos scripts limpian los auxiliares de cada archivo antes de empezar,
+compilan con `pdflatex -synctex=1 -interaction=nonstopmode` y salen con
+código distinto de cero si algo no coincide con lo esperado (útil para
+CI). `test_compile.sh` además requiere `pdftotext` en el PATH.
 
 Como `emate-ucr.cls`, `UCR.png` y `EMat.pdf` viven en el directorio
-padre, el script exporta `TEXINPUTS=".:..:"` para que `pdflatex` los
-encuentre sin necesidad de copiarlos aquí.
+padre, ambos scripts exportan `TEXINPUTS=".:..:"` para que `pdflatex`
+los encuentre sin necesidad de copiarlos aquí.
 
-## Cuándo correrlo
+## Cuándo correrlos
 
-Hay un hook de `pre-push` (`.githooks/pre-push`) que corre esta
-prueba automáticamente antes de aceptar un `git push`, y aborta el
-push si falla. Los hooks de git no se clonan solos — hay que activarlo
-una vez por clon del repositorio:
+Hay un hook de `pre-push` (`.githooks/pre-push`) que corre ambas
+suites automáticamente antes de aceptar un `git push`, y aborta el
+push si alguna falla. Los hooks de git no se clonan solos — hay que
+activarlo una vez por clon del repositorio:
 
 ```bash
 git config core.hooksPath .githooks
@@ -59,7 +86,7 @@ git config core.hooksPath .githooks
 
 Para saltarlo puntualmente: `git push --no-verify`.
 
-Si se prefiere correrlo a mano, por ejemplo tras cualquier cambio a la
-lógica de conteo de puntos en `emate-ucr.cls` (contador `puntos`,
-`\totalpuntos`, `\guia`, `\ptsguiaej`, `\ptsguiasubej`), basta con
-ejecutar `./test_rerun.sh` directamente.
+Si se prefiere correrlos a mano, por ejemplo tras cualquier cambio a
+`emate-ucr.cls` que toque el conteo de puntos (`\totalpuntos`, `\guia`,
+`\ptsguiaej`, `\ptsguiasubej`) o el manejo de `\guia`/TikZ/`\pts`, basta
+con ejecutar los scripts directamente.

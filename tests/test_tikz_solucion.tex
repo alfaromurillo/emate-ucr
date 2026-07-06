@@ -1,0 +1,33 @@
+%% Test: TikZ dentro de \begin{solucion} envuelto en \shorthandoff{>}/
+%% \shorthandon{>}. Sin ese envoltorio, "->" y ">=latex" rompen porque
+%% ">" es shorthand activo de babel-spanish antes de que
+%% \usetikzlibrary{babel} pueda desactivarlo (ver README, sección
+%% "TikZ dentro del entorno solucion"). Se compila tanto en modo base
+%% como en modo soluciones (ver test_tikz_solucion_soluciones.tex).
+\documentclass{emate-ucr}
+\usepackage{tikz}
+\usetikzlibrary{babel}
+\curso{Test}
+\encabezado{Test TikZ en solucion}
+
+\begin{document}
+\imprimirtitulo
+
+\begin{ejercicio}[1]
+  Enunciado de prueba.
+  \shorthandoff{>}
+  \begin{solucion}
+    \begin{tikzpicture}
+      \draw[->] (0,0) -- (1,0);
+      \draw[->,>=latex] (0,0) -- (0,1);
+    \end{tikzpicture}
+  \end{solucion}
+  \shorthandon{>}
+\end{ejercicio}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: LaTeX
+%%% TeX-master: t
+%%% End:

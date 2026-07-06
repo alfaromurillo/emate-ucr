@@ -1,0 +1,24 @@
+%% Test: "%" FUERA de \guia{...} y fuera de modo display, compilado en
+%% modo base (sin soluciones). Poner "%" dentro de \guia{...} en un
+%% bloque \[...\] reproduce "! Incompatible glue units." (ver README,
+%% sección "El carácter % dentro de un \guia{...} en modo display").
+\documentclass{emate-ucr}
+\curso{Test}
+\encabezado{Test guia percent}
+
+\begin{document}
+\imprimirtitulo
+
+\begin{ejercicio}[1]
+  Enunciado de prueba.
+  \begin{solucion}
+    $\%\Delta p_x = \guia[1]{0{,}01}$ (un aumento del $1\%$).
+  \end{solucion}
+\end{ejercicio}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: LaTeX
+%%% TeX-master: t
+%%% End:

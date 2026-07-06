@@ -1,0 +1,29 @@
+%% Test: \pts no se parte entre líneas y usa "pt." en singular.
+%% El minipage angosto (2.5cm) fuerza un salto justo antes de "pts.":
+%% sin el \mbox interno de \pts, "(2" queda en una línea y "pts.)" en
+%% la siguiente (ver commit 2751f66).
+\documentclass{emate-ucr}
+\curso{Test}
+\encabezado{Test \pts}
+
+\begin{document}
+\imprimirtitulo
+
+\begin{ejercicio}[3]
+\begin{minipage}[t]{2.5cm}
+Enunciado de relleno para forzar un salto justo antes de los puntos asignados \pts{2}
+\end{minipage}
+\end{ejercicio}
+
+\begin{ejercicio}[1]
+\begin{minipage}[t]{2.5cm}
+Enunciado de relleno para forzar un salto justo antes de los puntos asignados \pts{1}
+\end{minipage}
+\end{ejercicio}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: LaTeX
+%%% TeX-master: t
+%%% End:

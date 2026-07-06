@@ -1,14 +1,16 @@
 #!/usr/bin/env bash
-# Corre tests/test_rerun.sh antes de aceptar un push. Aborta el push
-# si alguna prueba falla. Requiere pdflatex.
+# Corre las suites de tests/ antes de aceptar un push. Aborta el push
+# si alguna prueba falla. Requiere pdflatex y pdftotext (poppler-utils).
 set -euo pipefail
 
 repo_root="$(git rev-parse --show-toplevel)"
 
-echo "pre-push: corriendo tests/test_rerun.sh..."
-if ! "$repo_root/tests/test_rerun.sh"; then
-  echo ""
-  echo "pre-push: test_rerun.sh falló, push abortado."
-  echo "(usa 'git push --no-verify' para saltar esta prueba)"
-  exit 1
-fi
+for suite in test_rerun.sh test_compile.sh; do
+  echo "pre-push: corriendo tests/$suite..."
+  if ! "$repo_root/tests/$suite"; then
+    echo ""
+    echo "pre-push: $suite falló, push abortado."
+    echo "(usa 'git push --no-verify' para saltar esta prueba)"
+    exit 1
+  fi
+done

@@ -1,0 +1,26 @@
+%% Test: puntuación FUERA de las llaves de \guia{...}, compilado en
+%% modo base (sin soluciones). Este patrón debe compilar limpio; ponerla
+%% DENTRO de las llaves reproduce "Extra \endcsname"/"Extra \fi" porque
+%% "." es shorthand activo de babel-spanish (ver README, sección
+%% "Puntuación al final de un argumento de \guia").
+\documentclass{emate-ucr}
+\curso{Test}
+\encabezado{Test guia puntuacion}
+
+\begin{document}
+\imprimirtitulo
+
+\begin{ejercicio}[1]
+  Enunciado de prueba.
+  \begin{solucion}
+    Fracción: $\guia[1][-4\baselineskip]{f_y = \frac{1}{x}}$.
+    Lista: \guia[1]{a}, \guia[1]{b}; \guia[1]{c}: fin.
+  \end{solucion}
+\end{ejercicio}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: LaTeX
+%%% TeX-master: t
+%%% End:
