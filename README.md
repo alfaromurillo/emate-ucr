@@ -167,7 +167,8 @@ pdflatex documento.tex
 \end{ejercicio}
 ```
 
-Imprime: `Ejercicio 1.  (25 pts.)`
+Imprime: `Ejercicio 1.  (25 pts.)`. Con `[1]` imprime `(1 pt.)` en
+singular (igual que `\pts{N}`, ver abajo).
 
 **Puntos por inciso** — usar `\pts{N}` al inicio de cada `\item`:
 

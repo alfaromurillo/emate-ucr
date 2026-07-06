@@ -245,7 +245,7 @@
   \setcounter{@guiaptsej}{0}%
   \refstepcounter{ejercicio}%
   \par\vspace{4mm}\noindent\textbf{\@nombreejercicio\ \arabic{ejercicio}.}%
-  \ifx&#1&\else{ \normalfont(#1 pts.)}\addtocounter{totalpts}{#1}\fi\quad
+  \ifx&#1&\else{ \normalfont\ifnum#1=1(#1 pt.)\else(#1 pts.)\fi}\addtocounter{totalpts}{#1}\fi\quad
 }{%
   % Detecta si \ptsguiaej cambió para este ejercicio respecto a la compilación
   % anterior.  \@ptsold es 0 cuando ptsej@N no existe aún (primera compilación).
