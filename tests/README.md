@@ -48,8 +48,18 @@ encuentre sin necesidad de copiarlos aquí.
 
 ## Cuándo correrlo
 
-Actualmente es manual: no hay hook de git ni GitHub Actions
-configurado todavía que lo ejecute automáticamente. Conviene correrlo
-a mano tras cualquier cambio a la lógica de conteo de puntos en
-`emate-ucr.cls` (contador `puntos`, `\totalpuntos`, `\guia`,
-`\ptsguiaej`, `\ptsguiasubej`) antes de hacer commit.
+Hay un hook de `pre-push` (`.githooks/pre-push`) que corre esta
+prueba automáticamente antes de aceptar un `git push`, y aborta el
+push si falla. Los hooks de git no se clonan solos — hay que activarlo
+una vez por clon del repositorio:
+
+```bash
+git config core.hooksPath .githooks
+```
+
+Para saltarlo puntualmente: `git push --no-verify`.
+
+Si se prefiere correrlo a mano, por ejemplo tras cualquier cambio a la
+lógica de conteo de puntos en `emate-ucr.cls` (contador `puntos`,
+`\totalpuntos`, `\guia`, `\ptsguiaej`, `\ptsguiasubej`), basta con
+ejecutar `./test_rerun.sh` directamente.

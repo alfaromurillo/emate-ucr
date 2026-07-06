@@ -83,6 +83,11 @@ recompiles `\totalpuntos`/`\ptsguiaej` fixtures several times and
 checks the "Rerun to get point totals right" warning appears/disappears
 on the expected passes. See `tests/README.md`.
 
+A `pre-push` git hook (`.githooks/pre-push`) runs this test suite
+before every `git push` and aborts on failure. Each clone must enable
+it once with `git config core.hooksPath .githooks` (hooks aren't
+tracked by git and don't come along automatically).
+
 ## Class Architecture (`emate-ucr.cls`)
 
 The class extends `article` at 12pt. Point counting uses a LaTeX counter (`puntos`) incremented by each `ejercicio` environment. The `solucion` environment is implemented with the `environ` package: when the `soluciones` option is not set, `\BODY` is discarded; when set, it renders in a colored `mdframed` box.
