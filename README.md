@@ -628,14 +628,21 @@ offset manualmente:
 
 ## Ejemplos
 
-El directorio incluye tres ejemplos compilables con sus versiones de soluciones. Cada archivo `.tex` tiene su PDF compilado correspondiente:
+El directorio `ejemplos/` incluye tres ejemplos compilables con sus versiones de soluciones. Cada archivo `.tex` tiene su PDF compilado correspondiente:
 
 | Archivo | Descripción |
 |---|---|
-| `ejemplo_ejercicios.tex` | Hoja de ejercicios sencilla |
-| `ejemplo_ejercicios_soluciones.tex` | Versión con soluciones de la hoja de ejercicios |
-| `ejemplo_prueba_corta.tex` | Prueba corta con metadatos e instrucciones |
-| `ejemplo_prueba_corta_soluciones.tex` | Versión con soluciones de la prueba corta |
-| `ejemplo_examen.tex` | Examen con todos los comandos disponibles |
-| `ejemplo_examen_soluciones.tex` | Versión con soluciones del examen |
-| `ejemplo_examen_guia.tex` | Versión de guía de calificación del examen |
+| `ejemplos/ejemplo_ejercicios.tex` | Hoja de ejercicios sencilla |
+| `ejemplos/ejemplo_ejercicios_soluciones.tex` | Versión con soluciones de la hoja de ejercicios |
+| `ejemplos/ejemplo_prueba_corta.tex` | Prueba corta con metadatos e instrucciones |
+| `ejemplos/ejemplo_prueba_corta_soluciones.tex` | Versión con soluciones de la prueba corta |
+| `ejemplos/ejemplo_examen.tex` | Examen con todos los comandos disponibles |
+| `ejemplos/ejemplo_examen_soluciones.tex` | Versión con soluciones del examen |
+| `ejemplos/ejemplo_examen_guia.tex` | Versión de guía de calificación del examen |
+
+`emate-ucr.cls`, `UCR.png` y `EMat.pdf` viven en la raíz del repositorio; para compilar un ejemplo desde `ejemplos/` hay que hacer que `pdflatex` los encuentre, por ejemplo:
+
+```bash
+cd ejemplos
+TEXINPUTS=".:..:" pdflatex ejemplo_examen.tex
+```

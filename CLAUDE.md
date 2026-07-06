@@ -63,13 +63,16 @@ The `guia` option implies `soluciones` (solutions are always visible in the guid
 
 ## Example Files
 
-The repo root contains worked examples that double as test cases:
+`ejemplos/` contains worked examples that double as test cases.
+`emate-ucr.cls`, `UCR.png`, and `EMat.pdf` stay in the repo root, so
+compiling from `ejemplos/` needs `TEXINPUTS=".:..:"` (or copy/symlink
+them in):
 
 | Base file | What it demonstrates |
 |-----------|---------------------|
-| `ejemplo_ejercicios.tex` + `_soluciones.tex` | Exercise sheet with `subejercicios`, `\pts`, solutions |
-| `ejemplo_prueba_corta.tex` + `_soluciones.tex` | Short quiz (prueba corta) |
-| `ejemplo_examen.tex` + `_soluciones.tex` + `_guia.tex` | Full exam with all three variants |
+| `ejemplos/ejemplo_ejercicios.tex` + `_soluciones.tex` | Exercise sheet with `subejercicios`, `\pts`, solutions |
+| `ejemplos/ejemplo_prueba_corta.tex` + `_soluciones.tex` | Short quiz (prueba corta) |
+| `ejemplos/ejemplo_examen.tex` + `_soluciones.tex` + `_guia.tex` | Full exam with all three variants |
 
 Real-world usage in `~/documents/projects/ma1022/`:
 - `ejercicios/ejercicios_semana_XX.tex` — weekly exercise sheets
