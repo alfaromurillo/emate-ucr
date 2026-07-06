@@ -5,6 +5,9 @@
 set -euo pipefail
 cd "$(dirname "$0")"
 
+# emate-ucr.cls, UCR.png y EMat.pdf viven en el directorio padre.
+export TEXINPUTS=".:..:${TEXINPUTS:-}"
+
 PASS=0
 FAIL=0
 

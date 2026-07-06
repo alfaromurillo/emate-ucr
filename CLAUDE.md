@@ -75,8 +75,10 @@ Real-world usage in `~/documents/projects/ma1022/`:
 - `ejercicios/ejercicios_semana_XX.tex` — weekly exercise sheets
 - `pruebas/` — partial exams (`cuarto_parcial.tex`, etc.) with `_soluciones` and `_guia` variants
 
-`test_rerun.sh` verifies multi-pass compilation stability (runs
-pdflatex twice and diffs the PDF checksums).
+`tests/test_rerun.sh` verifies multi-pass compilation stability: it
+recompiles `\totalpuntos`/`\ptsguiaej` fixtures several times and
+checks the "Rerun to get point totals right" warning appears/disappears
+on the expected passes. See `tests/README.md`.
 
 ## Class Architecture (`emate-ucr.cls`)
 
