@@ -284,6 +284,13 @@
 % Se desactiva: después del primer \guia que lo consume.
 \newif\if@guianewline\@guianewlinefalse
 
+% \guianewline: reinicia manualmente el offset horizontal acumulado de \guia.
+% Necesario antes de cada \guia en modo texto (p.ej. dentro de itemize) cuando
+% no hay un \[...\] entre ellos que dispare el reinicio automático; si no se
+% usa, las anotaciones se van corriendo +2em cada vez y pueden salirse de la
+% página. Ej.: \item Texto. \guianewline \guia[1]{resultado}.
+\newcommand{\guianewline}{\global\@guianewlinetrue}
+
 % Offset horizontal acumulado para anotaciones en la misma línea visual.
 \newlength{\@guiaoffset}
 \global\@guiaoffset=0pt

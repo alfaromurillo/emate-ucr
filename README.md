@@ -331,6 +331,7 @@ Por ejemplo, `\nombreejercicio{Problema}` produce `Problema 1.`, `Problema 2.`, 
 | `\guia[N][voffset][ulpad]{texto}` | Marca un fragmento de solución con N puntos (ver sección Guía de calificación) |
 | `\ptsguiaej` | Suma de `\guia[N]` (N > 0) en el ejercicio actual; usar como argumento de `ejercicio` |
 | `\ptsguiasubej` | Suma de `\guia[N]` (N > 0) en el ítem actual de `subejercicios` |
+| `\guianewline` | Reinicia el offset horizontal acumulado de `\guia`; usar antes de `\guia` en modo texto dentro de `itemize` (ver Notas de compatibilidad) |
 
 ### Opciones de clase
 
@@ -555,6 +556,73 @@ una expansión recursiva del punto activo y produce el error `Extra \endcsname`.
 La misma regla aplica a cualquier signo de puntuación (`,`, `;`, `:`) al final
 del argumento. El PDF se genera de todas formas (TeX recupera del error), pero el
 log reporta `Extra \endcsname` / `Extra \fi` en la línea `\end{solucion}`.
+
+### El carácter `%` dentro de un `\guia{...}` en modo display
+
+Igual que con el punto decimal (sección anterior), `babel-spanish` mantiene
+`%` activo (para el espaciado correcto antes del símbolo de porcentaje). Si
+un `\guia{...}` que contiene `%` está dentro de un bloque `\[...\]` (modo
+display) y el documento se compila **sin** la opción `soluciones`/`guia`,
+`environ` vuelve a capturar el cuerpo de `solucion` en una caja de medición
+para descartarlo. Esa recaptura dispara `\es@sppercent` fuera de su contexto
+normal y produce `! Incompatible glue units.`, típicamente señalado en la
+línea `\end{solucion}`.
+
+**Incorrecto** (`%` dentro de `\guia{...}` en modo display):
+
+```latex
+\[
+  \guia[1]{\%\Delta x \approx \varepsilon_{x,x}\cdot \%\Delta p_x}.
+\]
+```
+
+**Correcto** — mover el `%` fuera de `\guia{...}`, o directamente sacar todo
+el fragmento con `%` del modo display (usar texto normal o `$...$` inline en
+vez de `\[...\]`):
+
+```latex
+$\%\Delta p_x = \guia[1]{0{,}01}$ (un aumento del $1\%$).
+```
+
+Este bug solo aparece en la compilación **base** (sin soluciones/guía), igual
+que el del punto decimal — ambos son consecuencia del mismo mecanismo de
+recaptura de `environ`.
+
+### Acumulación del offset horizontal de `\guia` fuera de bloques display
+
+La anotación al margen de `\guia` calcula su posición horizontal con un
+offset que se acumula `+2em` cada vez que aparece un `\guia` en modo texto
+(no display), para evitar que dos anotaciones en la misma línea visual se
+sobrepongan. Ese offset **se reinicia automáticamente** al abrir o cerrar un
+bloque `\[...\]`/`align`/`gather`, pero **no** al pasar de un `\item` a otro
+dentro de `itemize`/`enumerate`/`subejercicios`.
+
+Esto significa que varios `\guia` en modo texto repartidos en distintos
+`\item` (sin ningún `\[...\]` entre ellos) heredan el offset acumulado del
+`\item` anterior, y cada anotación sucesiva aparece más corrida hacia la
+derecha que la anterior — hasta salirse de la página en listas de 3 o más
+`\item`.
+
+**Incorrecto** (offset acumulado entre `\item`, sin bloques display):
+
+```latex
+\begin{itemize}
+  \item $x=0$: Máx \guia[1]{$1800$} en $(0,9)$.
+  \item $y=0$: Máx \guia[1]{$4500$} en $(3,0)$.        % ya corrido +2em
+  \item Parábola: \guia[1]{$x=3{,}75\notin[0,3]$}.     % ya corrido +4em
+\end{itemize}
+```
+
+**Correcto** — usar `\guianewline` antes de cada `\guia` para reiniciar el
+offset manualmente:
+
+```latex
+\begin{itemize}
+  \item $x=0$: Máx \guianewline\guia[1]{$1800$} en $(0,9)$.
+  \item $y=0$: Máx \guianewline\guia[1]{$4500$} en $(3,0)$.
+  \item Parábola: \guianewline\guia[1]{$x=3{,}75\notin[0,3]$}.
+\end{itemize}
+```
 
 ---
 
