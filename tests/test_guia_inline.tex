@@ -1,0 +1,29 @@
+%% Test: \guia invocado DENTRO de matemática inline ($...$), modo guia.
+%% Antes de corregir \@guiamargnote, un \guia dentro de $...$ encolaba su
+%% anotación al margen para emitirla al cerrar el bloque display — pero
+%% $...$ inline nunca dispara ese cierre, así que la anotación se perdía
+%% en silencio, sin ningún error de compilación (ver README, sección
+%% "Matemática inline y \guia").
+\PassOptionsToClass{guia}{emate-ucr}
+\documentclass{emate-ucr}
+\curso{Test}
+\encabezado{Test guia inline}
+
+\begin{document}
+\imprimirtitulo
+
+\begin{ejercicio}[3]
+  Enunciado de prueba.
+  \begin{solucion}
+    Patrón fuera de matemática inline: \guia[1]{$k\neq 5$}.
+
+    Patrón dentro de matemática inline: $\guia[2]{k\neq 5}$.
+  \end{solucion}
+\end{ejercicio}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: LaTeX
+%%% TeX-master: t
+%%% End:

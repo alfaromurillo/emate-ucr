@@ -106,6 +106,12 @@ else
 fi
 
 echo ""
+echo "=== test_guia_inline (\\guia dentro de matemática inline, modo guia) ==="
+check_pdftext_contains test_guia_inline \
+  "+1" 'anotación de \guia fuera de $...$' \
+  "+2" 'anotación de \guia dentro de $...$'
+
+echo ""
 echo "========================================"
 echo "Resultado: ${PASS} pasaron, ${FAIL} fallaron"
 echo "========================================"

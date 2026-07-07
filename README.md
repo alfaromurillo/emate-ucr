@@ -625,6 +625,34 @@ offset manualmente:
 \end{itemize}
 ```
 
+### Matemática inline y `\guia` (corregido)
+
+Antes de corregirse, un `\guia` invocado **dentro** de matemática inline
+(`$...$`) nunca emitía su anotación al margen, sin ningún error de
+compilación — la anotación desaparecía en silencio. La causa: `\guia`
+en modo matemático encola su anotación para emitirla cuando cierra el
+bloque display (`\]`, `\endalign`, `\endgather`), porque `align`/`gather`/
+`equation` usan `\halign` internamente y atrapan `\vadjust` hasta que
+cierra la fila. Pero `$...$` inline no pasa por `\halign` y no dispara
+ningún "cierre de display", así que la anotación encolada nunca se
+vaciaba.
+
+Esto ya está corregido en la clase: `\guia` detecta matemática inline
+(`\ifmmode` + `\ifinner`) y emite su anotación de inmediato con
+`\vadjust`, igual que en modo texto, en vez de encolarla. Ambos patrones
+son válidos ahora:
+
+```latex
+Patrón fuera de $...$:  \guia[1]{$k\neq 5$}.
+Patrón dentro de $...$: $\guia[1]{k\neq 5}$.
+```
+
+Se recomienda seguir usando el primer patrón (`\guia` fuera de `$...$`,
+con el contenido matemático como argumento) por ser el más usado en el
+curso y el que se ve en todos los ejemplos de este README — pero el
+segundo ya no pierde la anotación. Ver `tests/test_guia_inline.tex`
+para el caso de regresión.
+
 ---
 
 ## Ejemplos

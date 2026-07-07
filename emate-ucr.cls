@@ -393,8 +393,12 @@
 }
 
 % Coloca la anotación en el margen derecho.
-% – Modo texto  : usa \vadjust (inmediato, posición exacta).
-% – Modo matemático: encola para emitir tras el bloque display.
+% – Modo texto             : usa \vadjust (inmediato, posición exacta).
+% – Matemática inline ($...$): también \vadjust inmediato — no hay \halign
+%   de por medio, así que no hace falta encolar (ver más abajo).
+% – Matemática display     : encola para emitir tras el bloque display,
+%   porque align/gather/equation usan \halign internamente y atrapan
+%   \vadjust hasta que se cierra la fila.
 % – Pase de medición de amsmath (\ifmeasuring@): no hace nada, para no
 %   consumir el flag antes del pase de salida.
 \newcommand{\@guiamargnote}[3]{%
@@ -417,14 +421,23 @@
       \else
         \@guia@voffsetdim=#3\relax
       \fi
-      \edef\@guia@tmp@enqueue{%
-        \noexpand\@guia@enqueue
-          {\unexpanded{#1}}%
-          {\unexpanded{#2}}%
-          {\@guiacurroffset}%
-          {\the\@guia@voffsetdim}%
-      }%
-      \@guia@tmp@enqueue
+      \ifinner
+        % Matemática inline: no hay ningún gancho de "cierre de $" que
+        % dispare \@guia@flushqueue (a diferencia de \], \endalign,
+        % \endgather), así que encolar aquí perdería la anotación en
+        % silencio. Como $...$ no pasa por \halign, \vadjust emitido
+        % ahora sí llega correctamente a la lista horizontal del párrafo.
+        \vadjust{\@guia@vlistnote{#1}{#2}{\@guiacurroffset}{\the\@guia@voffsetdim}}%
+      \else
+        \edef\@guia@tmp@enqueue{%
+          \noexpand\@guia@enqueue
+            {\unexpanded{#1}}%
+            {\unexpanded{#2}}%
+            {\@guiacurroffset}%
+            {\the\@guia@voffsetdim}%
+        }%
+        \@guia@tmp@enqueue
+      \fi
     \else
       \vadjust{%
         \vbox to 0pt{%
