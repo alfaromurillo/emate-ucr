@@ -16,3 +16,6 @@ FUTURO.md
 
 # Directorio de AUCTeX
 auto/
+
+# PDFs generados por tests/test_rerun.sh y tests/test_compile.sh
+tests/*.pdf
