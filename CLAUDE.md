@@ -92,6 +92,11 @@ before every `git push` and aborts on failure. Each clone must enable
 it once with `git config core.hooksPath .githooks` (hooks aren't
 tracked by git and don't come along automatically).
 
+`test_compile.sh` runs under `set -euo pipefail`: a `grep ... | wc -l`
+where grep matches zero lines exits 1 and aborts the whole script
+silently (even though `wc -l` itself succeeds). Append `|| true` to
+any such pipeline when adding new checks.
+
 ## Class Architecture (`emate-ucr.cls`)
 
 The class extends `article` at 12pt. Point counting uses a LaTeX counter (`puntos`) incremented by each `ejercicio` environment. The `solucion` environment is implemented with the `environ` package: when the `soluciones` option is not set, `\BODY` is discarded; when set, it renders in a colored `mdframed` box.
