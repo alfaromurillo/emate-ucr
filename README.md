@@ -16,19 +16,19 @@ Se necesitan tres archivos: `emate-ucr.cls`, `UCR.png` y `EMat.pdf`.
 
 ### Opción rápida: descargar los tres archivos
 
-Descargue cada uno con el botón derecho → "Guardar enlace como..." (o
-`wget`/`curl`) y colóquelos en el mismo directorio que su `.tex`:
+Descargue cada uno con el botón derecho → "Guardar enlace como..." y
+colóquelos en el mismo directorio que su `.tex`:
 
 - [emate-ucr.cls](https://raw.githubusercontent.com/alfaromurillo/emate-ucr/master/emate-ucr.cls)
 - [UCR.png](https://raw.githubusercontent.com/alfaromurillo/emate-ucr/master/UCR.png)
 - [EMat.pdf](https://raw.githubusercontent.com/alfaromurillo/emate-ucr/master/EMat.pdf)
 
-Por terminal:
+O por terminal:
 
 ```bash
-curl -O https://raw.githubusercontent.com/alfaromurillo/emate-ucr/master/emate-ucr.cls
-curl -O https://raw.githubusercontent.com/alfaromurillo/emate-ucr/master/UCR.png
-curl -O https://raw.githubusercontent.com/alfaromurillo/emate-ucr/master/EMat.pdf
+wget https://raw.githubusercontent.com/alfaromurillo/emate-ucr/master/emate-ucr.cls
+wget https://raw.githubusercontent.com/alfaromurillo/emate-ucr/master/UCR.png
+wget https://raw.githubusercontent.com/alfaromurillo/emate-ucr/master/EMat.pdf
 ```
 
 Con esta opción los tres archivos deben copiarse manualmente a cada
