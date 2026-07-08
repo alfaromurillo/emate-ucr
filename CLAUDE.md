@@ -100,3 +100,7 @@ any such pipeline when adding new checks.
 ## Class Architecture (`emate-ucr.cls`)
 
 The class extends `article` at 12pt. Point counting uses a LaTeX counter (`puntos`) incremented by each `ejercicio` environment. The `solucion` environment is implemented with the `environ` package: when the `soluciones` option is not set, `\BODY` is discarded; when set, it renders in a colored `mdframed` box.
+
+`\guia`'s margin annotation (`\@guiamargnote`) behaves differently by math context: inline (`$...$`) and `\[...\]` emit immediately via `\vadjust`; `align`/`gather` must enqueue and flush at `\endalign`/`\endgather` because their `\halign` internals truly trap `\vadjust` (confirmed empirically — content silently dropped, not just delayed). `\[...\]` doesn't need this because amsmath defines it as `equation*`, which has no `\halign`. Any future `\guia`-in-math-mode bug report is probably about this split; check which branch (`\ifmmode`/`\ifinner`/`\if@guiahalign`) it's landing in first.
+
+To debug a `\vadjust`/page-break placement bug: build a minimal repro, bisect the amount of filler text before the display block until `pdfinfo` shows the page count you're chasing, then use `pdftotext -f N -l N file.pdf -` to inspect what landed on each page.
