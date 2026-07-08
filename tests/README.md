@@ -46,12 +46,20 @@ documentarse el workaround — el objetivo es que un cambio futuro a
 | `test_tikz_solucion_soluciones.tex` | Igual, modo `soluciones` | cualquier error de LaTeX |
 | `test_pts_format.tex` | `\pts{2}` no se parte entre líneas (minipage angosto); `\pts{1}` usa singular | ausencia de `(2 pts.)`/`(1 pt.)` contiguos en el PDF, o presencia de `(1 pts.)` |
 | `test_guia_inline.tex` | `\guia` dentro de matemática inline (`$...$`), modo `guia` | presencia de ambas anotaciones (`+1` y `+2`) en el PDF |
+| `test_guia_pagebreak.tex` | `\guia` en `\[...\]` justo al borde de una página, modo `guia` | ambas anotaciones (`+1`) en la MISMA página que el bloque display |
 
-`test_pts_format.tex` y `test_guia_inline.tex` usan `pdftotext` (parte de
-`poppler-utils`) para extraer el texto del PDF en vez de grepear el
-`.log`, porque los bugs que prueban no producen ningún error de
-compilación: son de *layout* (un salto de línea en medio de la
-anotación) o de anotación silenciosamente perdida, respectivamente.
+`test_pts_format.tex`, `test_guia_inline.tex` y `test_guia_pagebreak.tex`
+usan `pdftotext` (parte de `poppler-utils`) para extraer el texto del PDF
+en vez de grepear el `.log`, porque los bugs que prueban no producen
+ningún error de compilación: son de *layout* (un salto de línea en medio
+de la anotación), de anotación silenciosamente perdida, o de anotación
+que aparece en la página equivocada, respectivamente.
+
+`test_guia_pagebreak.tex` usa `check_same_page` (en vez de
+`check_pdftext_contains`), que busca la página que contiene un texto
+ancla y verifica ahí mismo el número de ocurrencias de otra cadena —
+necesario porque este bug es, por definición, sobre en qué página
+termina cada cosa, no solo si aparece en el PDF.
 
 Importante: estos tests prueban el **patrón correcto/documentado**, no
 que el patrón incorrecto siga fallando. Si algún día se arregla la

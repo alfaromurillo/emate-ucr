@@ -282,14 +282,14 @@
 % Flag: indica que el próximo \guia debe reiniciar el offset (nueva línea visual).
 % Se activa: al inicio del cuerpo de solucion, y después de cada \[...\].
 % Se desactiva: después del primer \guia que lo consume.
-\newif\if@guianewline\@guianewlinefalse
+\newif\if@guiaretorno\@guiaretornofalse
 
-% \guianewline: reinicia manualmente el offset horizontal acumulado de \guia.
+% \guiaretorno: reinicia manualmente el offset horizontal acumulado de \guia.
 % Necesario antes de cada \guia en modo texto (p.ej. dentro de itemize) cuando
 % no hay un \[...\] entre ellos que dispare el reinicio automático; si no se
 % usa, las anotaciones se van corriendo +2em cada vez y pueden salirse de la
-% página. Ej.: \item Texto. \guianewline \guia[1]{resultado}.
-\newcommand{\guianewline}{\global\@guianewlinetrue}
+% página. Ej.: \item Texto. \guiaretorno \guia[1]{resultado}.
+\newcommand{\guiaretorno}{\global\@guiaretornotrue}
 
 % Offset horizontal acumulado para anotaciones en la misma línea visual.
 \newlength{\@guiaoffset}
@@ -350,13 +350,21 @@
 }
 
 % Cola de anotaciones diferidas desde modo matemático.
-% Las celdas de \halign (align*, equation, etc.) atrapan \vadjust; en su lugar
-% las anotaciones se encolan y se emiten en el gancho de \endalign / \].
+% Las celdas de \halign de align/gather atrapan \vadjust (confirmado
+% empíricamente: el contenido se pierde por completo dentro de una celda),
+% así que ahí las anotaciones se encolan y se emiten en el gancho de
+% \endalign/\endgather. \[...\] (alias de equation* en amsmath) NO usa
+% \halign, así que no necesita encolarse — ver \if@guiahalign más abajo.
 % Se usa un registro de tokens (\newtoks) en lugar de \gdef para evitar
 % conflictos con \expandafter en el contexto de mdframed.
 \newtoks\@guia@queue
 \@guia@queue={}
 \newif\if@guia@queuenonempty
+
+% Flag: verdadero mientras estamos dentro de align/gather (ver \@guiacuerpo),
+% donde \vadjust queda atrapado en \halign y hay que encolar. Falso en
+% \[...\] (equation*), donde \vadjust puede emitirse de inmediato.
+\newif\if@guiahalign\@guiahalignfalse
 
 % Agrega una anotación a la cola.
 \newcommand{\@guia@enqueue}[4]{%
@@ -393,20 +401,29 @@
 }
 
 % Coloca la anotación en el margen derecho.
-% – Modo texto             : usa \vadjust (inmediato, posición exacta).
-% – Matemática inline ($...$): también \vadjust inmediato — no hay \halign
-%   de por medio, así que no hace falta encolar (ver más abajo).
-% – Matemática display     : encola para emitir tras el bloque display,
-%   porque align/gather/equation usan \halign internamente y atrapan
-%   \vadjust hasta que se cierra la fila.
+% – Modo texto               : usa \vadjust (inmediato, posición exacta).
+% – Matemática inline ($...$) : también \vadjust inmediato — no hay \halign
+%   de por medio, así que no hace falta encolar.
+% – Matemática display \[...\] (alias de equation* en amsmath): \vadjust
+%   inmediato también — sin \halign de por medio. Emitir de inmediato (en
+%   vez de encolar hasta \]) evita que la anotación quede "colgando" en la
+%   lista horizontal que sigue al bloque display: si esa lista resulta estar
+%   vacía (el display es lo último antes de \end{solucion}) y el "page
+%   builder" corta la página justo ahí, el \vadjust diferido termina en la
+%   página SIGUIENTE a la del display que anota (ver README, sección
+%   "Anotación de \guia en la página siguiente al bloque display").
+% – Matemática display align/gather: SÍ se encola (\if@guiahalign), porque
+%   sus celdas de \halign atrapan \vadjust por completo (se pierde, no solo
+%   se retrasa) — confirmado empíricamente. Se emite en el gancho de
+%   \endalign/\endgather, con el mismo riesgo de página que arriba.
 % – Pase de medición de amsmath (\ifmeasuring@): no hace nada, para no
 %   consumir el flag antes del pase de salida.
 \newcommand{\@guiamargnote}[3]{%
   % #1=color  #2=texto  #3=expresión de dimensión para voffset (default 0pt)
   \ifmeasuring@\else
-    \if@guianewline
+    \if@guiaretorno
       \global\@guiaoffset=0pt
-      \global\@guianewlinefalse
+      \global\@guiaretornofalse
     \fi
     \edef\@guiacurroffset{\the\@guiaoffset}%
     \global\advance\@guiaoffset by 2em
@@ -429,14 +446,27 @@
         % ahora sí llega correctamente a la lista horizontal del párrafo.
         \vadjust{\@guia@vlistnote{#1}{#2}{\@guiacurroffset}{\the\@guia@voffsetdim}}%
       \else
-        \edef\@guia@tmp@enqueue{%
-          \noexpand\@guia@enqueue
-            {\unexpanded{#1}}%
-            {\unexpanded{#2}}%
-            {\@guiacurroffset}%
-            {\the\@guia@voffsetdim}%
-        }%
-        \@guia@tmp@enqueue
+        \if@guiahalign
+          % align/gather: sus celdas de \halign atrapan \vadjust por
+          % completo, así que hay que encolar y emitir después, en el
+          % gancho de \endalign/\endgather (\@guiacuerpo).
+          \edef\@guia@tmp@enqueue{%
+            \noexpand\@guia@enqueue
+              {\unexpanded{#1}}%
+              {\unexpanded{#2}}%
+              {\@guiacurroffset}%
+              {\the\@guia@voffsetdim}%
+          }%
+          \@guia@tmp@enqueue
+        \else
+          % \[...\] (equation* en amsmath): no hay \halign de por medio,
+          % así que \vadjust puede emitirse de inmediato, igual que en
+          % inline. Esto evita que la anotación quede anclada a la lista
+          % horizontal (vacía) que sigue al bloque display, la cual puede
+          % terminar en la página siguiente si el corte de página cae justo
+          % después del display (ver README).
+          \vadjust{\@guia@vlistnote{#1}{#2}{\@guiacurroffset}{\the\@guia@voffsetdim}}%
+        \fi
       \fi
     \else
       \vadjust{%
@@ -549,19 +579,32 @@
 \newcommand{\@guiacuerpo}{%
   \noindent\textbf{Guía de calificación:}\par
   \begingroup
-    \global\@guianewlinetrue  % el primer \guia siempre reinicia el offset
+    \global\@guiaretornotrue  % el primer \guia siempre reinicia el offset
     % Resetea el flag al INICIO de cualquier display (cubre equation, align,
     % gather, \[...\], y cualquier otro entorno display de amsmath).
     \edef\@guia@savedevdisplay{\the\everydisplay}%
-    \everydisplay{\@guia@savedevdisplay\global\@guianewlinetrue}%
+    \everydisplay{\@guia@savedevdisplay\global\@guiaretornotrue}%
     % Resetea el flag también al TERMINAR los entornos display comunes,
     % para que el texto que sigue al display empiece con offset=0.
     \let\@guia@saved@bracket\]
-    \def\]{\@guia@saved@bracket\@guia@flushqueue\global\@guianewlinetrue}%
+    \def\]{\@guia@saved@bracket\@guia@flushqueue\global\@guiaretornotrue}%
+    % align/gather usan \halign internamente (a diferencia de \[...\], que
+    % amsmath define como equation*): marcar \if@guiahalign mientras dura el
+    % entorno para que \@guiamargnote encole en vez de emitir de inmediato.
+    \let\@guia@savedalign\align
+    \def\align{\@guia@savedalign\global\@guiahaligntrue}%
+    \let\@guia@savedgather\gather
+    \def\gather{\@guia@savedgather\global\@guiahaligntrue}%
     \let\@guia@savedendalign\endalign
-    \def\endalign{\@guia@savedendalign\@guia@flushqueue\global\@guianewlinetrue}%
+    \def\endalign{%
+      \@guia@savedendalign\@guia@flushqueue
+      \global\@guiaretornotrue\global\@guiahalignfalse
+    }%
     \let\@guia@savedendgather\endgather
-    \def\endgather{\@guia@savedendgather\@guia@flushqueue\global\@guianewlinetrue}%
+    \def\endgather{%
+      \@guia@savedendgather\@guia@flushqueue
+      \global\@guiaretornotrue\global\@guiahalignfalse
+    }%
     \BODY
   \endgroup
 }

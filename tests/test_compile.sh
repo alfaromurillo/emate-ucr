@@ -75,6 +75,52 @@ check_pdftext_contains() {
   done
 }
 
+# Verifica que dos cadenas aparezcan en la MISMA página del PDF (busca la
+# página que contiene $2 y cuenta ahí las ocurrencias de $3).
+# $1 = archivo .tex (sin extensión)
+# $2 = cadena ancla (p.ej. el texto justo antes del bloque display)
+# $3 = cadena que debe acompañarla en esa misma página
+# $4 = número esperado de ocurrencias de $3 en esa página
+# $5 = descripción
+check_same_page() {
+  local base="$1" anchor="$2" needle="$3" expected="$4" desc="$5"
+  local tex="${base}.tex"
+
+  rm -f "${base}.aux" "${base}.log" "${base}.out" "${base}.pdf" \
+        "${base}.synctex.gz"
+
+  pdflatex -synctex=1 -interaction=nonstopmode "$tex" > /dev/null 2>&1 || true
+  pdflatex -synctex=1 -interaction=nonstopmode "$tex" > /dev/null 2>&1 || true
+
+  if [ ! -f "${base}.pdf" ]; then
+    echo "  $base: FAIL  (no se generó ${base}.pdf)"
+    FAIL=$((FAIL+1))
+    return
+  fi
+
+  local npages
+  npages="$(pdfinfo "${base}.pdf" 2>/dev/null | awk '/^Pages:/{print $2}')"
+
+  local page count
+  for page in $(seq 1 "$npages"); do
+    if pdftotext -f "$page" -l "$page" "${base}.pdf" - 2>/dev/null \
+        | grep -qF "$anchor"; then
+      count=$(pdftotext -f "$page" -l "$page" "${base}.pdf" - 2>/dev/null \
+        | grep -oF "$needle" | wc -l || true)
+      if [ "$count" -eq "$expected" ]; then
+        echo "  $base: PASS  ($desc)"
+        PASS=$((PASS+1))
+      else
+        echo "  $base: FAIL  ($desc — página $page tiene $count de $expected)"
+        FAIL=$((FAIL+1))
+      fi
+      return
+    fi
+  done
+  echo "  $base: FAIL  ($desc — no se encontró \"$anchor\" en ninguna página)"
+  FAIL=$((FAIL+1))
+}
+
 echo "=== test_guia_puntuacion (puntuación fuera de \\guia{...}) ==="
 check_no_error test_guia_puntuacion 'Extra \\endcsname|Extra \\fi' \
   '"Extra \endcsname"/"Extra \fi"'
@@ -110,6 +156,11 @@ echo "=== test_guia_inline (\\guia dentro de matemática inline, modo guia) ==="
 check_pdftext_contains test_guia_inline \
   "+1" 'anotación de \guia fuera de $...$' \
   "+2" 'anotación de \guia dentro de $...$'
+
+echo ""
+echo "=== test_guia_pagebreak (anotación de \\guia en bloque display al borde de página) ==="
+check_same_page test_guia_pagebreak "Diferenciando" "+1" 2 \
+  '"Diferenciando" y ambos "+1" en la misma página'
 
 echo ""
 echo "========================================"

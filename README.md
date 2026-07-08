@@ -332,7 +332,7 @@ Por ejemplo, `\nombreejercicio{Problema}` produce `Problema 1.`, `Problema 2.`, 
 | `\guia[N][voffset][ulpad]{texto}` | Marca un fragmento de solución con N puntos (ver sección Guía de calificación) |
 | `\ptsguiaej` | Suma de `\guia[N]` (N > 0) en el ejercicio actual; usar como argumento de `ejercicio` |
 | `\ptsguiasubej` | Suma de `\guia[N]` (N > 0) en el ítem actual de `subejercicios` |
-| `\guianewline` | Reinicia el offset horizontal acumulado de `\guia`; usar antes de `\guia` en modo texto dentro de `itemize` (ver Notas de compatibilidad) |
+| `\guiaretorno` | Reinicia el offset horizontal acumulado de `\guia`; usar antes de `\guia` en modo texto dentro de `itemize` (ver Notas de compatibilidad) |
 
 ### Opciones de clase
 
@@ -614,14 +614,14 @@ derecha que la anterior — hasta salirse de la página en listas de 3 o más
 \end{itemize}
 ```
 
-**Correcto** — usar `\guianewline` antes de cada `\guia` para reiniciar el
+**Correcto** — usar `\guiaretorno` antes de cada `\guia` para reiniciar el
 offset manualmente:
 
 ```latex
 \begin{itemize}
-  \item $x=0$: Máx \guianewline\guia[1]{$1800$} en $(0,9)$.
-  \item $y=0$: Máx \guianewline\guia[1]{$4500$} en $(3,0)$.
-  \item Parábola: \guianewline\guia[1]{$x=3{,}75\notin[0,3]$}.
+  \item $x=0$: Máx \guiaretorno\guia[1]{$1800$} en $(0,9)$.
+  \item $y=0$: Máx \guiaretorno\guia[1]{$4500$} en $(3,0)$.
+  \item Parábola: \guiaretorno\guia[1]{$x=3{,}75\notin[0,3]$}.
 \end{itemize}
 ```
 
@@ -652,6 +652,55 @@ con el contenido matemático como argumento) por ser el más usado en el
 curso y el que se ve en todos los ejemplos de este README — pero el
 segundo ya no pierde la anotación. Ver `tests/test_guia_inline.tex`
 para el caso de regresión.
+
+### Anotación de `\guia` en la página siguiente al bloque display (corregido en `\[...\]`)
+
+Antes de corregirse, un `\guia` dentro de un bloque display (`\[...\]`,
+`align`, `gather`) que caía justo al final de una página podía emitir su
+anotación al margen en la página **siguiente**, separada del bloque que
+anota — sin ningún error de compilación. La causa: `\guia` en modo
+matemático display encolaba su anotación para emitirla recién al cerrar
+el bloque (`\]`, `\endalign`, `\endgather`). Si ese cierre caía justo
+donde TeX ya había decidido cortar la página (por ejemplo, porque no
+quedaba más contenido visible después del bloque antes de
+`\end{solucion}`), el material encolado terminaba adjunto a la página
+siguiente, aunque el bloque display en sí cupiera en la página anterior.
+Ajustar el `[voffset]` de `\guia` no arreglaba esto: ese ajuste es un
+desplazamiento relativo dentro de una caja que TeX ya despachó a una
+página — no puede traerla de vuelta.
+
+**`\[...\]` ya está corregido**: amsmath define `\[...\]` como alias de
+`equation*`, que —a diferencia de `align`/`gather`— no usa `\halign`
+internamente, así que `\guia` ya no necesita encolar: emite su anotación
+de inmediato con `\vadjust` en el punto exacto de la llamada, dentro del
+mismo bloque display. Como la anotación queda dentro de la misma caja
+que el bloque anota, viaja con ella a cualquier página donde termine.
+
+```latex
+\[
+  \guia[1]{\frac{1}{z}\,\frac{\partial z}{\partial p_x} = \frac{3}{p_x}}
+  \implies
+  \frac{\partial z}{\partial p_x} = \frac{3z}{p_x}.
+\]
+```
+
+**`align`/`gather` siguen en riesgo**: sus celdas de `\halign` atrapan
+`\vadjust` por completo (se pierde, no solo se retrasa — confirmado
+empíricamente), así que ahí `\guia` todavía debe encolar y emitir en
+`\endalign`/`\endgather`, con el mismo riesgo de página descrito arriba.
+Si un `\guia` dentro de `align`/`gather` cae justo al borde de una
+página y su anotación aparece en la página equivocada, la solución más
+simple es forzar el corte manualmente antes del bloque:
+
+```latex
+\clearpage % o \pagebreak, según el caso
+\begin{align}
+  ...
+\end{align}
+```
+
+Ver `tests/test_guia_pagebreak.tex` para el caso de regresión (cubre
+`\[...\]`, que es el caso ya corregido).
 
 ---
 

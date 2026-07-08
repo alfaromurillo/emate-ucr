@@ -1,0 +1,41 @@
+% Test: la anotación al margen de \guia dentro de un bloque display
+% (\[...\]) debe caer en la MISMA página que el bloque que anota, incluso
+% cuando ese bloque queda justo en el borde de una página. Antes de la
+% corrección, \@guiamargnote encolaba la anotación y la vaciaba recién al
+% cerrar el "\]" (\@guia@flushqueue); si ese cierre caía justo donde el
+% "page builder" ya había cortado la página, la anotación terminaba
+% flotando en la página SIGUIENTE a la del bloque display (ver README,
+% sección "Anotación de \guia en la página siguiente al bloque display").
+% El relleno de abajo (texto repetido sin significado) empuja el bloque
+% "Diferenciando..." justo al borde de la página 1/2, verificado con esta
+% clase y motor; si el bug reaparece, "Diferenciando" y los "+1" quedarán
+% en páginas distintas.
+\PassOptionsToClass{guia}{emate-ucr}
+\documentclass{emate-ucr}
+\curso{Test}
+\encabezado{Test guia pagebreak}
+
+\begin{document}
+\imprimirtitulo
+
+\begin{ejercicio}[1]
+  Enunciado de relleno.
+  \begin{solucion}
+    \noindent
+    Texto de relleno para llenar la pagina y forzar un corte justo antes del bloque display. Texto de relleno para llenar la pagina y forzar un corte justo antes del bloque display. Texto de relleno para llenar la pagina y forzar un corte justo antes del bloque display. Texto de relleno para llenar la pagina y forzar un corte justo antes del bloque display. Texto de relleno para llenar la pagina y forzar un corte justo antes del bloque display. Texto de relleno para llenar la pagina y forzar un corte justo antes del bloque display. Texto de relleno para llenar la pagina y forzar un corte justo antes del bloque display. Texto de relleno para llenar la pagina y forzar un corte justo antes del bloque display. Texto de relleno para llenar la pagina y forzar un corte justo antes del bloque display. Texto de relleno para llenar la pagina y forzar un corte justo antes del bloque display. Texto de relleno para llenar la pagina y forzar un corte justo antes del bloque display. Texto de relleno para llenar la pagina y forzar un corte justo antes del bloque display. Texto de relleno para llenar la pagina y forzar un corte justo antes del bloque display. Texto de relleno para llenar la pagina y forzar un corte justo antes del bloque display. Texto de relleno para llenar la pagina y forzar un corte justo antes del bloque display. Texto de relleno para llenar la pagina y forzar un corte justo antes del bloque display. Texto de relleno para llenar la pagina y forzar un corte justo antes del bloque display. Texto de relleno para llenar la pagina y forzar un corte justo antes del bloque display. Texto de relleno para llenar la pagina y forzar un corte justo antes del bloque display. Texto de relleno para llenar la pagina y forzar un corte justo antes del bloque display. Texto de relleno para llenar la pagina y forzar un corte justo antes del bloque display. Texto de relleno para llenar la pagina y forzar un corte justo antes del bloque display. Texto de relleno para llenar la pagina y forzar un corte justo antes del bloque display. Texto de relleno para llenar la pagina y forzar un corte justo antes del bloque display. Texto de relleno para llenar la pagina y forzar un corte justo antes del bloque display. Texto de relleno para llenar la pagina y forzar un corte justo antes del bloque display. Texto de relleno para llenar la pagina y forzar un corte justo antes del bloque display. Texto de relleno para llenar la pagina y forzar un corte justo antes del bloque display. Texto de relleno para llenar la pagina y forzar un corte justo antes del bloque display. Texto
+
+    Diferenciando con respecto a $p_x$:
+    \[
+      \guia[1]{\frac{1}{z}\,\frac{\partial z}{\partial p_x} = \frac{3}{p_x}}
+      \guia[1][-3\baselineskip]{\implies
+      \frac{\partial z}{\partial p_x} = \frac{3z}{p_x}}.
+    \]
+  \end{solucion}
+\end{ejercicio}
+
+\end{document}
+
+%% Local Variables:
+%% mode: LaTeX
+%% TeX-master: t
+%% End:
