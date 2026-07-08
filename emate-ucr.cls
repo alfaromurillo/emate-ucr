@@ -349,6 +349,30 @@
   }%
 }
 
+% Igual que \@guiastrike, pero para contenido matemático (#2 llega sin
+% delimitadores $, ya estamos dentro de \ifmmode). \makebox/\settowidth
+% cambian a modo horizontal restringido, donde los comandos matemáticos
+% crudos (\cdot, \det, etc.) no son válidos sin reabrir matemática con $;
+% de ahí el anidado $...$ dentro de la caja. \ifinner (evaluado ANTES de
+% anidar, en el contexto matemático exterior real) decide si hace falta
+% \displaystyle para igualar el tamaño de una fórmula display \[...\]; la
+% matemática anidada en un \hbox siempre empieza en textstyle por sí sola.
+\newcommand{\@guiastrikemath}[2]{%
+  \ifinner
+    \def\@guiastrikestyle{}%
+  \else
+    \def\@guiastrikestyle{\displaystyle}%
+  \fi
+  \settowidth{\@guiawd}{$\@guiastrikestyle#2$}%
+  \makebox[\@guiawd][l]{%
+    $\@guiastrikestyle#2$%
+    \llap{%
+      \transparent{\guiatransparencia}%
+      \textcolor{#1}{\rule[4pt]{\@guiawd}{0.8pt}}%
+    }%
+  }%
+}
+
 % Cola de anotaciones diferidas desde modo matemático.
 % Las celdas de \halign de align/gather atrapan \vadjust (confirmado
 % empíricamente: el contenido se pierde por completo dentro de una celda),
@@ -542,7 +566,7 @@
     \else
       \ifnum#1<0\relax
         \ifmmode
-          #4\@guiamargnote{\guiacolornegativo}{#1}{#2}%
+          \@guiastrikemath{\guiacolornegativo}{#4}\@guiamargnote{\guiacolornegativo}{#1}{#2}%
         \else
           \@guiastrike{\guiacolornegativo}{#4}\@guiamargnote{\guiacolornegativo}{#1}{#2}%
         \fi

@@ -393,9 +393,12 @@ Comportamiento según el valor de `N`:
 | N = 0 o sin argumento | Texto sin decoración |
 | Sin opción `guia` | Texto sin decoración (el contenido sigue visible en `soluciones`) |
 
-En modo matemático (`$...$`, `\[...\]`, `align*`, etc.) el subrayado usa
-`\underline` de LaTeX en lugar de `\uline`. Las anotaciones en el margen
-dentro de entornos display aparecen al terminar el bloque.
+En modo matemático (`$...$`, `\[...\]`, `align*`, etc.) el subrayado (N > 0)
+usa `\underline` de LaTeX en lugar de `\uline`, y el tachado (N < 0) reconstruye
+el contenido dentro de una caja con `$...$` anidado (no existe un `\sout`
+matemático fiable) para dibujar la misma regla semi-transparente que en modo
+texto. Las anotaciones en el margen dentro de entornos display aparecen al
+terminar el bloque.
 
 Ejemplo de uso:
 

@@ -1,0 +1,30 @@
+%% Test: \guia[N] con N<0 dentro de matemática (inline y display), modo guia.
+%% Antes de corregir \@guia@iii, la rama \ifmmode del caso negativo solo
+%% emitía #4 tal cual (sin tachado), a diferencia del caso positivo, que sí
+%% subraya en modo matemático. Este test verifica que ambos casos produzcan
+%% el tachado (visualmente, revisar el PDF; aquí solo se valida que compile).
+\documentclass{emate-ucr}
+\curso{Test}
+\encabezado{Test guia math strike}
+
+\begin{document}
+\imprimirtitulo
+
+\begin{ejercicio}[3]
+  Enunciado de prueba.
+  \begin{solucion}
+    Tachado en matemática inline: $\guia[-1]{k\neq 5}$.
+
+    Tachado en matemática display:
+    \[
+      \guia[-2]{\det(A) = 1 \cdot 1 \cdot (k-5)}
+    \]
+  \end{solucion}
+\end{ejercicio}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: LaTeX
+%%% TeX-master: t
+%%% End:

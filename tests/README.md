@@ -47,6 +47,8 @@ documentarse el workaround — el objetivo es que un cambio futuro a
 | `test_pts_format.tex` | `\pts{2}` no se parte entre líneas (minipage angosto); `\pts{1}` usa singular | ausencia de `(2 pts.)`/`(1 pt.)` contiguos en el PDF, o presencia de `(1 pts.)` |
 | `test_guia_inline.tex` | `\guia` dentro de matemática inline (`$...$`), modo `guia` | presencia de ambas anotaciones (`+1` y `+2`) en el PDF |
 | `test_guia_pagebreak.tex` | `\guia` en `\[...\]` justo al borde de una página, modo `guia` | ambas anotaciones (`+1`) en la MISMA página que el bloque display |
+| `test_guia_math_strike_guia.tex` | `\guia[N<0]` en matemática inline y display, modo `guia` | compila sin error; presencia de ambas anotaciones (`-1` y `-2`) en el PDF |
+| `test_guia_math_strike_soluciones.tex` | Mismo documento base, modo `soluciones` (sin `guia`) | ausencia de `-1`/`-2` en el PDF (sin decoración fuera de modo `guia`) |
 
 `test_pts_format.tex`, `test_guia_inline.tex` y `test_guia_pagebreak.tex`
 usan `pdftotext` (parte de `poppler-utils`) para extraer el texto del PDF

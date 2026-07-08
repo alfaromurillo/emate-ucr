@@ -65,7 +65,7 @@ check_pdftext_contains() {
     local needle="$1"
     local desc="$2"
     shift 2
-    if echo "$text" | grep -qF "$needle"; then
+    if echo "$text" | grep -qF -- "$needle"; then
       echo "  $base: PASS  ($desc)"
       PASS=$((PASS+1))
     else
@@ -161,6 +161,26 @@ echo ""
 echo "=== test_guia_pagebreak (anotación de \\guia en bloque display al borde de página) ==="
 check_same_page test_guia_pagebreak "Diferenciando" "+1" 2 \
   '"Diferenciando" y ambos "+1" en la misma página'
+
+echo ""
+echo "=== test_guia_math_strike_guia (\\guia[N<0] tachado en matemática, modo guia) ==="
+check_no_error test_guia_math_strike_guia '^!' 'un error de LaTeX'
+check_pdftext_contains test_guia_math_strike_guia \
+  "-1" 'anotación de \guia negativo en matemática inline' \
+  "-2" 'anotación de \guia negativo en matemática display'
+
+echo ""
+echo "=== test_guia_math_strike_soluciones (sin anotaciones de \\guia en modo soluciones) ==="
+check_no_error test_guia_math_strike_soluciones '^!' 'un error de LaTeX'
+if [ -f test_guia_math_strike_soluciones.pdf ] \
+    && ! pdftotext test_guia_math_strike_soluciones.pdf - 2>/dev/null \
+      | grep -qE -- '-1|-2'; then
+  echo "  test_guia_math_strike_soluciones: PASS  (sin anotaciones -1/-2 en soluciones)"
+  PASS=$((PASS+1))
+else
+  echo "  test_guia_math_strike_soluciones: FAIL  (anotación -1/-2 filtrada a soluciones)"
+  FAIL=$((FAIL+1))
+fi
 
 echo ""
 echo "========================================"
