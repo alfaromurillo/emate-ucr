@@ -1,5 +1,8 @@
 FUTURO.md
 
+# Configuración local de Claude Code (no pública)
+.claude/
+
 # Archivos auxiliares de LaTeX
 *.aux
 *.log
