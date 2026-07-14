@@ -663,6 +663,25 @@
   \endgroup
 }
 
+% \solosinsoluciones : incluye el argumento (o el cuerpo del entorno
+% solosinsolucionesbloque) solo en la versión base del documento, sin
+% las opciones soluciones/guia. Pensado para cosas como forzar un
+% \newpage que tiene sentido en la copia para imprimir pero dejaría un
+% salto de página con mucho espacio en blanco en las versiones con
+% soluciones/guía, donde el contenido es más denso. guia implica
+% soluciones (ver \DeclareOption arriba), así que basta revisar
+% \if@soluciones para cubrir ambas.
+% El entorno necesita un nombre distinto del comando: \begin{foo}
+% expande a \foo, así que un entorno y un comando de un argumento no
+% pueden compartir el mismo nombre de control.
+\newcommand{\solosinsoluciones}[1]{%
+  \if@soluciones\else#1\fi
+}
+
+\NewEnviron{solosinsolucionesbloque}{%
+  \if@soluciones\else\BODY\fi
+}
+
 \NewEnviron{solucion}{%
   \if@soluciones
     \if@guia

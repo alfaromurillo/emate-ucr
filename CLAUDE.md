@@ -57,6 +57,7 @@ The `guia` option implies `soluciones` (solutions are always visible in the guid
 - `\pts{N}` — right-aligned "(N pts.)" within a `\item`
 - `\totalpuntos` — auto-sum of all exercise point values
 - `\begin{solucion}...\end{solucion}` — instructor-only content
+- `\solosinsoluciones{text}` / `\begin{solosinsolucionesbloque}...\end{solosinsolucionesbloque}` — mirror of `solucion`: content shown only in the base version (neither `soluciones` nor `guia`); e.g. for a `\newpage` that only makes sense on the printed copy
 - `\guia[N]{text}` — marks gradeable text; colored underline with score in `guia` mode, plain text in `soluciones` mode
 - `\ptsguiaej` / `\ptsguiasubej` — display accumulated `\guia` points for current exercise / sub-item
 - `\nombreejercicio{text}` — overrides exercise label prefix (default: "Ejercicio")
@@ -106,3 +107,5 @@ The class extends `article` at 12pt. Point counting uses a LaTeX counter (`punto
 Gotcha already hit once: `\ifinner` is **also** true inside `\halign` cells (restricted horizontal mode), not just in true inline math — so `\@guiamargnote` must check `\if@guiahalign` *before* `\ifinner`, or the halign branch is unreachable and the annotation silently drops instead of enqueueing. Relatedly, `align*`/`gather*` are separate control sequences from `\align`/`\gather` (`\csname align*\endcsname`, reached via `\expandafter`), so `\@guiacuerpo` must intercept all four names explicitly — patching `\align`/`\gather` alone leaves the starred variants uncovered. See `tests/test_guia_halign.tex`.
 
 To debug a `\vadjust`/page-break placement bug: build a minimal repro, bisect the amount of filler text before the display block until `pdfinfo` shows the page count you're chasing, then use `pdftotext -f N -l N file.pdf -` to inspect what landed on each page.
+
+`\solosinsoluciones`/`solosinsolucionesbloque` deliberately use two different names, not `\renewenvironment` tricks: `\begin{foo}` always expands to `\foo`, so a one-argument command and an environment can't share a control sequence name — `\NewEnviron{solosinsoluciones}` collides with `\newcommand{\solosinsoluciones}` and errors "already defined". Any future request to unify their names hits this same wall.

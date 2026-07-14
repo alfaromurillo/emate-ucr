@@ -262,6 +262,32 @@ Solo aparecen en el PDF cuando se compila con la opción `soluciones`:
 \end{ejercicio}
 ```
 
+### Contenido solo para la versión sin soluciones
+
+`\solosinsoluciones{...}` y el entorno `solosinsolucionesbloque` son el
+espejo de `solucion`: su contenido aparece únicamente en la versión
+base (sin las opciones `soluciones`/`guia`). Sirven, por ejemplo, para
+forzar un `\newpage` que tiene sentido en la copia para imprimir pero
+dejaría un salto de página con mucho espacio en blanco en las
+versiones con soluciones o guía, donde el contenido es más denso.
+
+```latex
+\begin{ejercicio}[10]
+  Enunciado...
+\end{ejercicio}
+
+\solosinsoluciones{\newpage}   % solo salta de página en la versión base
+
+\begin{solosinsolucionesbloque}
+  \begin{indicaciones}
+    Espacio en blanco para resolver este ejercicio.
+  \end{indicaciones}
+\end{solosinsolucionesbloque}
+```
+
+Como la opción `guia` implica `soluciones`, el contenido tampoco
+aparece en la versión de guía de calificación.
+
 ### Prueba corta o examen
 
 Los siguientes comandos son **opcionales**. Si no se usan, el documento queda
@@ -329,6 +355,8 @@ Por ejemplo, `\nombreejercicio{Problema}` produce `Problema 1.`, `Problema 2.`, 
 | `\pts{N}` | Imprime `(N pts.)` alineado a la derecha; usar dentro de `\item` |
 | `\totalpuntos` | Total acumulado de puntos de todos los `\begin{ejercicio}[N]` |
 | `\begin{solucion}` | Solución (visible solo con opción `[soluciones]`) |
+| `\solosinsoluciones{texto}` | Ejecuta/imprime `texto` solo en la versión base (sin `[soluciones]`/`[guia]`) |
+| `\begin{solosinsolucionesbloque}` | Igual que `\solosinsoluciones`, para bloques de contenido |
 | `\guia[N][voffset][ulpad]{texto}` | Marca un fragmento de solución con N puntos (ver sección Guía de calificación) |
 | `\ptsguiaej` | Suma de `\guia[N]` (N > 0) en el ejercicio actual; usar como argumento de `ejercicio` |
 | `\ptsguiasubej` | Suma de `\guia[N]` (N > 0) en el ítem actual de `subejercicios` |

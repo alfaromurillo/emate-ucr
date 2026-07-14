@@ -1,0 +1,29 @@
+%% Test: \solosinsoluciones (comando y entorno).
+%% Ambos deben mostrarse solo en la versión base (sin soluciones/guia).
+%% El \newpage forzado dentro de \solosinsoluciones debe partir la
+%% página en modo base, pero no en modo soluciones/guia.
+\documentclass{emate-ucr}
+\curso{Test}
+\encabezado{Test solosinsoluciones}
+
+\begin{document}
+\imprimirtitulo
+
+\begin{ejercicio}[2]
+  Enunciado de prueba.
+  \solosinsoluciones{\mbox{MARCACOMANDO}}
+  \begin{solosinsolucionesbloque}
+    \mbox{MARCAENTORNO}
+  \end{solosinsolucionesbloque}
+\end{ejercicio}
+
+\solosinsoluciones{\newpage}
+
+\mbox{MARCAPAGINA}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: LaTeX
+%%% TeX-master: t
+%%% End:

@@ -51,6 +51,9 @@ documentarse el workaround — el objetivo es que un cambio futuro a
 | `test_guia_math_strike_soluciones.tex` | Mismo documento base, modo `soluciones` (sin `guia`) | ausencia de `-1`/`-2` en el PDF (sin decoración fuera de modo `guia`) |
 | `test_guia_halign_guia.tex` | `\guia` dentro de `align`, `align*`, `gather` y `gather*`, modo `guia` | compila sin error; presencia de las 5 anotaciones (`+1`..`+5`) en el PDF |
 | `test_guia_halign_soluciones.tex` | Mismo documento base, modo `soluciones` (sin `guia`) | ausencia de `+1`..`+5` en el PDF (sin decoración fuera de modo `guia`) |
+| `test_solosinsoluciones.tex` | `\solosinsoluciones{...}` y el entorno `solosinsolucionesbloque`, modo base | contenido visible en el PDF; `\newpage` fuerza 2 páginas |
+| `test_solosinsoluciones_soluciones.tex` | Mismo documento base, modo `soluciones` | contenido ausente del PDF; `\newpage` suprimido (1 página) |
+| `test_solosinsoluciones_guia.tex` | Mismo documento base, modo `guia` | contenido ausente del PDF; `\newpage` suprimido (1 página) |
 
 `test_pts_format.tex`, `test_guia_inline.tex` y `test_guia_pagebreak.tex`
 usan `pdftotext` (parte de `poppler-utils`) para extraer el texto del PDF

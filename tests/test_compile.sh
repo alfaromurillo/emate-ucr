@@ -206,6 +206,66 @@ else
 fi
 
 echo ""
+echo "=== test_solosinsoluciones (comando y entorno, modo base) ==="
+check_no_error test_solosinsoluciones '^!' 'un error de LaTeX'
+check_pdftext_contains test_solosinsoluciones \
+  "MARCACOMANDO" '\solosinsoluciones{...} se muestra en modo base' \
+  "MARCAENTORNO" 'entorno solosinsolucionesbloque se muestra en modo base'
+npages="$(pdfinfo test_solosinsoluciones.pdf 2>/dev/null \
+  | awk '/^Pages:/{print $2}')"
+if [ "$npages" -eq 2 ]; then
+  echo "  test_solosinsoluciones: PASS  (\\newpage forzado: 2 páginas)"
+  PASS=$((PASS+1))
+else
+  echo "  test_solosinsoluciones: FAIL  (se esperaban 2 páginas, hubo $npages)"
+  FAIL=$((FAIL+1))
+fi
+
+echo ""
+echo "=== test_solosinsoluciones_soluciones (se oculta en modo soluciones) ==="
+check_no_error test_solosinsoluciones_soluciones '^!' 'un error de LaTeX'
+if [ -f test_solosinsoluciones_soluciones.pdf ] \
+    && ! pdftotext test_solosinsoluciones_soluciones.pdf - 2>/dev/null \
+      | grep -qE 'MARCACOMANDO|MARCAENTORNO'; then
+  echo "  test_solosinsoluciones_soluciones: PASS  (sin MARCACOMANDO/MARCAENTORNO)"
+  PASS=$((PASS+1))
+else
+  echo "  test_solosinsoluciones_soluciones: FAIL  (contenido filtrado a soluciones)"
+  FAIL=$((FAIL+1))
+fi
+npages="$(pdfinfo test_solosinsoluciones_soluciones.pdf 2>/dev/null \
+  | awk '/^Pages:/{print $2}')"
+if [ "$npages" -eq 1 ]; then
+  echo "  test_solosinsoluciones_soluciones: PASS  (\\newpage suprimido: 1 página)"
+  PASS=$((PASS+1))
+else
+  echo "  test_solosinsoluciones_soluciones: FAIL  (se esperaba 1 página, hubo $npages)"
+  FAIL=$((FAIL+1))
+fi
+
+echo ""
+echo "=== test_solosinsoluciones_guia (se oculta en modo guia) ==="
+check_no_error test_solosinsoluciones_guia '^!' 'un error de LaTeX'
+if [ -f test_solosinsoluciones_guia.pdf ] \
+    && ! pdftotext test_solosinsoluciones_guia.pdf - 2>/dev/null \
+      | grep -qE 'MARCACOMANDO|MARCAENTORNO'; then
+  echo "  test_solosinsoluciones_guia: PASS  (sin MARCACOMANDO/MARCAENTORNO)"
+  PASS=$((PASS+1))
+else
+  echo "  test_solosinsoluciones_guia: FAIL  (contenido filtrado a guia)"
+  FAIL=$((FAIL+1))
+fi
+npages="$(pdfinfo test_solosinsoluciones_guia.pdf 2>/dev/null \
+  | awk '/^Pages:/{print $2}')"
+if [ "$npages" -eq 1 ]; then
+  echo "  test_solosinsoluciones_guia: PASS  (\\newpage suprimido: 1 página)"
+  PASS=$((PASS+1))
+else
+  echo "  test_solosinsoluciones_guia: FAIL  (se esperaba 1 página, hubo $npages)"
+  FAIL=$((FAIL+1))
+fi
+
+echo ""
 echo "========================================"
 echo "Resultado: ${PASS} pasaron, ${FAIL} fallaron"
 echo "========================================"
