@@ -183,6 +183,29 @@ else
 fi
 
 echo ""
+echo "=== test_guia_halign_guia (\\guia dentro de align/align*/gather/gather*) ==="
+check_no_error test_guia_halign_guia '^!' 'un error de LaTeX'
+check_pdftext_contains test_guia_halign_guia \
+  "+1" 'anotación de \guia en align*' \
+  "+2" 'anotación de \guia en align* (segunda línea)' \
+  "+3" 'anotación de \guia en align' \
+  "+4" 'anotación de \guia en gather' \
+  "+5" 'anotación de \guia en gather*'
+
+echo ""
+echo "=== test_guia_halign_soluciones (sin anotaciones de \\guia en modo soluciones) ==="
+check_no_error test_guia_halign_soluciones '^!' 'un error de LaTeX'
+if [ -f test_guia_halign_soluciones.pdf ] \
+    && ! pdftotext test_guia_halign_soluciones.pdf - 2>/dev/null \
+      | grep -qE -- '\+1|\+2|\+3|\+4|\+5'; then
+  echo "  test_guia_halign_soluciones: PASS  (sin anotaciones +1..+5 en soluciones)"
+  PASS=$((PASS+1))
+else
+  echo "  test_guia_halign_soluciones: FAIL  (anotación +N filtrada a soluciones)"
+  FAIL=$((FAIL+1))
+fi
+
+echo ""
 echo "========================================"
 echo "Resultado: ${PASS} pasaron, ${FAIL} fallaron"
 echo "========================================"

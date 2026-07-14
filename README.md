@@ -687,13 +687,14 @@ que el bloque anota, viaja con ella a cualquier página donde termine.
 \]
 ```
 
-**`align`/`gather` siguen en riesgo**: sus celdas de `\halign` atrapan
-`\vadjust` por completo (se pierde, no solo se retrasa — confirmado
-empíricamente), así que ahí `\guia` todavía debe encolar y emitir en
-`\endalign`/`\endgather`, con el mismo riesgo de página descrito arriba.
-Si un `\guia` dentro de `align`/`gather` cae justo al borde de una
-página y su anotación aparece en la página equivocada, la solución más
-simple es forzar el corte manualmente antes del bloque:
+**`align`/`align*`/`gather`/`gather*` siguen en riesgo de página**: sus
+celdas de `\halign` atrapan `\vadjust` por completo (se pierde, no solo
+se retrasa — confirmado empíricamente), así que ahí `\guia` todavía debe
+encolar y emitir en `\endalign`/`\endgather` (y sus variantes con `*`),
+con el mismo riesgo de página descrito arriba. Si un `\guia` dentro de
+uno de estos cuatro entornos cae justo al borde de una página y su
+anotación aparece en la página equivocada, la solución más simple es
+forzar el corte manualmente antes del bloque:
 
 ```latex
 \clearpage % o \pagebreak, según el caso
@@ -704,6 +705,32 @@ simple es forzar el corte manualmente antes del bloque:
 
 Ver `tests/test_guia_pagebreak.tex` para el caso de regresión (cubre
 `\[...\]`, que es el caso ya corregido).
+
+### Anotación de `\guia` perdida por completo en `align`/`align*`/`gather`/`gather*` (corregido)
+
+Antes de corregirse, un `\guia` dentro de estos cuatro entornos no
+emitía **ninguna** anotación al margen, sin importar el número de
+pasadas de compilación ni cuántos `\guia` hubiera en el bloque — a
+diferencia del riesgo de página descrito arriba, esto no era un
+desplazamiento a la página siguiente sino una pérdida total y
+silenciosa.
+
+La causa: `\@guiamargnote` revisaba `\ifinner` **antes** que
+`\if@guiahalign`, pero `\ifinner` también resulta verdadero dentro de
+las celdas de `\halign` que usan `align`/`gather` internamente (es modo
+horizontal restringido, igual que matemática inline). Por eso la rama
+de encolado (`\if@guiahalign`) nunca se alcanzaba: se tomaba la rama de
+`\vadjust` inmediato pensada para `$...$` inline, y ese `\vadjust`
+quedaba atrapado y se perdía en silencio dentro de la celda de
+`\halign`. Además, `align*`/`gather*` no estaban interceptados en
+absoluto: el código solo redefinía `\align`/`\gather` (y sus cierres),
+no los comandos aparte `\csname align*\endcsname`/`\csname
+gather*\endcsname` que usan las variantes con asterisco.
+
+Ya corregido: `\@guiamargnote` revisa `\if@guiahalign` antes que
+`\ifinner`, y `\@guiacuerpo` intercepta las cuatro variantes (`align`,
+`align*`, `gather`, `gather*`) para marcar el flag. Ver
+`tests/test_guia_halign.tex` para el caso de regresión.
 
 ---
 

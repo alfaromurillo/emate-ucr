@@ -462,26 +462,32 @@
       \else
         \@guia@voffsetdim=#3\relax
       \fi
-      \ifinner
-        % Matemática inline: no hay ningún gancho de "cierre de $" que
-        % dispare \@guia@flushqueue (a diferencia de \], \endalign,
-        % \endgather), así que encolar aquí perdería la anotación en
-        % silencio. Como $...$ no pasa por \halign, \vadjust emitido
-        % ahora sí llega correctamente a la lista horizontal del párrafo.
-        \vadjust{\@guia@vlistnote{#1}{#2}{\@guiacurroffset}{\the\@guia@voffsetdim}}%
+      \if@guiahalign
+        % align/gather (y sus variantes con *): sus celdas de \halign
+        % ponen \ifinner en verdadero también (modo horizontal
+        % restringido), así que \if@guiahalign debe revisarse ANTES que
+        % \ifinner o esta rama nunca se alcanza: el \vadjust de la rama
+        % inline (más abajo) se ejecutaría en su lugar y quedaría
+        % atrapado y perdido en silencio dentro de la celda — este era
+        % el bug real (no solo un problema de orden de página). Aquí
+        % encolamos y emitimos después, en el gancho de
+        % \endalign/\endgather (\@guiacuerpo).
+        \edef\@guia@tmp@enqueue{%
+          \noexpand\@guia@enqueue
+            {\unexpanded{#1}}%
+            {\unexpanded{#2}}%
+            {\@guiacurroffset}%
+            {\the\@guia@voffsetdim}%
+        }%
+        \@guia@tmp@enqueue
       \else
-        \if@guiahalign
-          % align/gather: sus celdas de \halign atrapan \vadjust por
-          % completo, así que hay que encolar y emitir después, en el
-          % gancho de \endalign/\endgather (\@guiacuerpo).
-          \edef\@guia@tmp@enqueue{%
-            \noexpand\@guia@enqueue
-              {\unexpanded{#1}}%
-              {\unexpanded{#2}}%
-              {\@guiacurroffset}%
-              {\the\@guia@voffsetdim}%
-          }%
-          \@guia@tmp@enqueue
+        \ifinner
+          % Matemática inline: no hay ningún gancho de "cierre de $" que
+          % dispare \@guia@flushqueue (a diferencia de \], \endalign,
+          % \endgather), así que encolar aquí perdería la anotación en
+          % silencio. Como $...$ no pasa por \halign, \vadjust emitido
+          % ahora sí llega correctamente a la lista horizontal del párrafo.
+          \vadjust{\@guia@vlistnote{#1}{#2}{\@guiacurroffset}{\the\@guia@voffsetdim}}%
         \else
           % \[...\] (equation* en amsmath): no hay \halign de por medio,
           % así que \vadjust puede emitirse de inmediato, igual que en
@@ -612,13 +618,25 @@
     % para que el texto que sigue al display empiece con offset=0.
     \let\@guia@saved@bracket\]
     \def\]{\@guia@saved@bracket\@guia@flushqueue\global\@guiaretornotrue}%
-    % align/gather usan \halign internamente (a diferencia de \[...\], que
-    % amsmath define como equation*): marcar \if@guiahalign mientras dura el
-    % entorno para que \@guiamargnote encole en vez de emitir de inmediato.
+    % align/align*/gather/gather* usan \halign internamente (a diferencia
+    % de \[...\], que amsmath define como equation*): marcar \if@guiahalign
+    % mientras dura el entorno para que \@guiamargnote encole en vez de
+    % emitir de inmediato. Las variantes con * son comandos aparte
+    % (\csname align*\endcsname, no \align con un booleano), así que cada
+    % una necesita su propio par \let/\def; de lo contrario quedan sin
+    % interceptar y pierden la anotación igual que antes del fix.
     \let\@guia@savedalign\align
     \def\align{\@guia@savedalign\global\@guiahaligntrue}%
     \let\@guia@savedgather\gather
     \def\gather{\@guia@savedgather\global\@guiahaligntrue}%
+    \expandafter\let\csname @guia@savedalignstar\expandafter\endcsname
+      \csname align*\endcsname
+    \expandafter\def\csname align*\endcsname{%
+      \csname @guia@savedalignstar\endcsname\global\@guiahaligntrue}%
+    \expandafter\let\csname @guia@savedgatherstar\expandafter\endcsname
+      \csname gather*\endcsname
+    \expandafter\def\csname gather*\endcsname{%
+      \csname @guia@savedgatherstar\endcsname\global\@guiahaligntrue}%
     \let\@guia@savedendalign\endalign
     \def\endalign{%
       \@guia@savedendalign\@guia@flushqueue
@@ -627,6 +645,18 @@
     \let\@guia@savedendgather\endgather
     \def\endgather{%
       \@guia@savedendgather\@guia@flushqueue
+      \global\@guiaretornotrue\global\@guiahalignfalse
+    }%
+    \expandafter\let\csname @guia@savedendalignstar\expandafter\endcsname
+      \csname endalign*\endcsname
+    \expandafter\def\csname endalign*\endcsname{%
+      \csname @guia@savedendalignstar\endcsname\@guia@flushqueue
+      \global\@guiaretornotrue\global\@guiahalignfalse
+    }%
+    \expandafter\let\csname @guia@savedendgatherstar\expandafter\endcsname
+      \csname endgather*\endcsname
+    \expandafter\def\csname endgather*\endcsname{%
+      \csname @guia@savedendgatherstar\endcsname\@guia@flushqueue
       \global\@guiaretornotrue\global\@guiahalignfalse
     }%
     \BODY

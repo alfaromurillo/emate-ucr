@@ -1,0 +1,43 @@
+%% Test: \guia dentro de align, align*, gather y gather*, modo guia.
+%% Bug corregido: \@guiamargnote revisaba \ifinner antes que
+%% \if@guiahalign, pero \ifinner también es verdadero dentro de las
+%% celdas de \halign que usan align/gather, así que la rama de encolado
+%% nunca se alcanzaba y el \vadjust quedaba atrapado y se perdía en
+%% silencio. Además align*/gather* no estaban interceptados en absoluto
+%% (son comandos aparte de \align/\gather). Este test verifica que las
+%% cuatro anotaciones aparezcan en el PDF.
+\documentclass{emate-ucr}
+\curso{Test}
+\encabezado{Test guia halign}
+
+\begin{document}
+\imprimirtitulo
+
+\begin{ejercicio}[4]
+  Enunciado de prueba.
+  \begin{solucion}
+    \begin{align*}
+      \guia[1]{x} &= 1 \\
+      \guia[2]{y} &= 2
+    \end{align*}
+
+    \begin{align}
+      \guia[3]{a} &= 3
+    \end{align}
+
+    \begin{gather}
+      \guia[4]{b} = 5
+    \end{gather}
+
+    \begin{gather*}
+      \guia[5]{c} = 7
+    \end{gather*}
+  \end{solucion}
+\end{ejercicio}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: LaTeX
+%%% TeX-master: t
+%%% End:
