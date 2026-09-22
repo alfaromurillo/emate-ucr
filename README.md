@@ -124,7 +124,17 @@ La clase usa `inputenc` y `fontenc`, por lo que requiere **pdflatex**:
 
 ```bash
 pdflatex documento.tex
+pdflatex documento.tex   # 2ª pasada: números de página (y \totalpuntos)
 ```
+
+> **Compilar siempre dos veces.** Con el comportamiento predeterminado de
+> numeración (ver [Opciones de clase](#opciones-de-clase)), el pie de página
+> solo imprime el número si el documento tiene 2 o más páginas, y eso se
+> decide con una referencia a `LastPage` que **no existe en la primera
+> pasada**: un PDF compilado una sola vez sale sin números de página en
+> ninguna hoja, sin ningún error ni warning en el `.log`. La segunda pasada
+> también es la que hace correctos `\totalpuntos` y `\ptsguiaej` (ver sus
+> secciones; con ambos a la vez se necesitan tres).
 
 ---
 
@@ -371,6 +381,13 @@ Por ejemplo, `\nombreejercicio{Problema}` produce `Problema 1.`, `Problema 2.`, 
 | `[numpaginas]` | Siempre imprime el número de página en el pie |
 | `[nonumpaginas]` | Nunca imprime el número de página |
 | (ninguna) | Imprime el número de página solo si el documento tiene 2 o más páginas (predeterminado) |
+
+> **Ojo con la numeración predeterminada:** el conteo de páginas se obtiene de
+> la referencia `LastPage`, que solo está disponible a partir de la segunda
+> compilación. Si el documento se compila una sola vez, el PDF queda **sin
+> números de página** aunque tenga varias hojas (ver
+> [Compilación](#compilación)). La opción `[numpaginas]` no tiene este
+> problema, porque no consulta `LastPage`.
 
 ```latex
 \documentclass[numpaginas]{emate-ucr}            % siempre
