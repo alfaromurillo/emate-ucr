@@ -1,5 +1,15 @@
 # CLAUDE.md
 
+## Contents
+
+- Project Overview
+- Build Commands
+- Dual-Version Workflow
+- Key Commands and Environments
+- Example Files
+  - Test suites (`tests/`) and the pre-push hook
+- Class Architecture (`emate-ucr.cls`)
+
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
 ## Project Overview
@@ -78,6 +88,8 @@ them in):
 Real-world usage in `~/documents/projects/ma1022/`:
 - `ejercicios/ejercicios_semana_XX.tex` — weekly exercise sheets
 - `pruebas/` — partial exams (`cuarto_parcial.tex`, etc.) with `_soluciones` and `_guia` variants
+
+### Test suites (`tests/`) and the pre-push hook
 
 `tests/test_rerun.sh` verifies multi-pass compilation stability: it
 recompiles `\totalpuntos`/`\ptsguiaej` fixtures several times and
