@@ -18,14 +18,14 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Build Commands
 
-Requires **pdflatex**. The class file, `UCR.png`, and `EMat.pdf` must be in the same directory as the document.
+Requires **pdflatex**. The class file, `UCR.png`, and `EMat.pdf` must be findable by TeX: in the document's directory, via `TEXINPUTS` (see Example Files), or through the symlinks in `~/texmf/tex/latex/emate-ucr/` that point at this repo (how `ma1022` compiles).
 
 ```bash
-# Compile a document
-pdflatex documento.tex
-
-# When using \totalpuntos in the preamble, compile twice for correct totals
-pdflatex documento.tex && pdflatex documento.tex
+# Always compile twice: the footer prints page numbers only once the
+# LastPage reference exists, and \totalpuntos needs the second pass too
+pdflatex -synctex=1 -interaction=nonstopmode documento.tex
+pdflatex -synctex=1 -interaction=nonstopmode documento.tex
+# A third pass is needed when \ptsguiaej and \totalpuntos are combined
 ```
 
 ## Dual-Version Workflow
@@ -87,7 +87,8 @@ them in):
 
 Real-world usage in `~/documents/projects/ma1022/`:
 - `ejercicios/ejercicios_semana_XX.tex` — weekly exercise sheets
-- `pruebas/` — partial exams (`cuarto_parcial.tex`, etc.) with `_soluciones` and `_guia` variants
+- `pruebas/` — partial exams (`primer_parcial.tex`, etc.) with `_soluciones` and `_guia` variants
+- `practicas_examenes/` — practice sheets for each parcial, some with `_guia`
 
 ### Test suites (`tests/`) and the pre-push hook
 
@@ -112,7 +113,7 @@ any such pipeline when adding new checks.
 
 ## Class Architecture (`emate-ucr.cls`)
 
-The class extends `article` at 12pt. Point counting uses a LaTeX counter (`puntos`) incremented by each `ejercicio` environment. The `solucion` environment is implemented with the `environ` package: when the `soluciones` option is not set, `\BODY` is discarded; when set, it renders in a colored `mdframed` box.
+The class extends `article` at 12pt. Point counting uses a LaTeX counter (`totalpts`) incremented by each `ejercicio` environment's `[N]` argument. The `solucion` environment is implemented with the `environ` package: when the `soluciones` option is not set, `\BODY` is discarded; when set, it renders in a colored `mdframed` box.
 
 `\guia`'s margin annotation (`\@guiamargnote`) behaves differently by math context: inline (`$...$`) and `\[...\]` emit immediately via `\vadjust`; `align`/`align*`/`gather`/`gather*` must enqueue and flush at `\endalign`/`\endgather` (and their `*` counterparts) because their `\halign` internals truly trap `\vadjust` (confirmed empirically — content silently dropped, not just delayed). `\[...\]` doesn't need this because amsmath defines it as `equation*`, which has no `\halign`. Any future `\guia`-in-math-mode bug report is probably about this split; check which branch (`\ifmmode`/`\ifinner`/`\if@guiahalign`) it's landing in first.
 
